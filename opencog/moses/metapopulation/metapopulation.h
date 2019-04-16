@@ -129,9 +129,19 @@ public:
                    const metapop_parameters& pa = metapop_parameters(),
                    const subsample_deme_filter_parameters& subp = subsample_deme_filter_parameters());
 
+//    metapopulation(const HandleSeq& bases,
+//                   behave_cscore& sc,
+//                   const metapop_parameters& pa = metapop_parameters(),
+//                   const subsample_deme_filter_parameters& subp = subsample_deme_filter_parameters());
+
     // Like above but using a single base, and a single reduction rule.
     /// @todo use C++11 redirection
     metapopulation(const combo_tree& base,
+                   behave_cscore& sc,
+                   const metapop_parameters& pa = metapop_parameters(),
+                   const subsample_deme_filter_parameters& subp = subsample_deme_filter_parameters());
+
+    metapopulation(const Handle& base,
                    behave_cscore& sc,
                    const metapop_parameters& pa = metapop_parameters(),
                    const subsample_deme_filter_parameters& subp = subsample_deme_filter_parameters());

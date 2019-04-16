@@ -48,6 +48,14 @@ metapopulation::metapopulation(const combo_tree_seq& bases,
     init(bases);
 }
 
+//metapopulation::metapopulation(const HandleSeq& bases,
+//               behave_cscore& sc,
+//               const metapop_parameters& pa = metapop_parameters(),
+//               const subsample_deme_filter_parameters& subp = subsample_deme_filter_parameters())
+//{
+//
+//}
+
 
 metapopulation::metapopulation(const combo_tree& base,
                behave_cscore& sc,
@@ -65,6 +73,21 @@ metapopulation::metapopulation(const combo_tree& base,
     init(bases);
 }
 
+metapopulation::metapopulation(const Handle& base,
+                               behave_cscore& sc,
+                               const metapop_parameters& pa,
+                               const subsample_deme_filter_parameters& subp) :
+        _cached_dst(pa.diversity),
+        _params(pa),
+        _filter_params(subp),
+        _cscorer(sc),
+        _merge_count(0),
+        _best_cscore(worst_composite_score),
+        _ensemble(sc, pa.ensemble_params)
+{
+            combo_tree_seq bases(1, base);
+            init(bases);
+}
 
 // Init the metapopulation with the following set of exemplars.
 void metapopulation::init(const combo_tree_seq& exemplars)

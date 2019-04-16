@@ -57,6 +57,14 @@ bool scored_combo_tree::operator==(const scored_combo_tree& r) const {
 		and get_composite_score() == r.get_composite_score();
 }
 
+bool scored_atomese::operator==(const scored_atomese& r) const {
+	return get_handle() == r.get_handle()
+		and get_demeID() == r.get_demeID()
+		and get_bscore() == r.get_bscore()
+		and get_weight() == r.get_weight()
+		and get_composite_score() == r.get_composite_score();
+}
+
 size_t scored_combo_tree_hash::operator()(const scored_combo_tree& sct) const
 {
 	size_t hash = 0;
@@ -67,10 +75,28 @@ size_t scored_combo_tree_hash::operator()(const scored_combo_tree& sct) const
 	return hash;
 }
 
+size_t scored_atomese_hash::operator()(const scored_atomese& sct) const
+{
+//	size_t hash = 0;
+//	const Handle
+//	const combo::combo_tree& tr = sct.get_tree();
+//	for (combo::vertex vtx : tr) {
+//		boost::hash_combine(hash, combo::hash_value(vtx));
+//	}
+//	return hash;
+}
+
 bool scored_combo_tree_equal::operator()(const scored_combo_tree& tr1,
                                          const scored_combo_tree& tr2) const
 {
 	return tr1.get_tree() == tr2.get_tree();
+}
+
+bool scored_atomese_equal::operator()(const scored_atomese& a1,
+									  const scored_atomese& a2) const
+{
+	// not quite sure if the logic is right?
+	return a1.get_handle() == a2.get_handle();
 }
 
 // See header file for description.
