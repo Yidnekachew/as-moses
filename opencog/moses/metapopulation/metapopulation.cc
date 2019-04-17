@@ -48,14 +48,28 @@ metapopulation::metapopulation(const combo_tree_seq& bases,
     init(bases);
 }
 
-//metapopulation::metapopulation(const HandleSeq& bases,
-//               behave_cscore& sc,
-//               const metapop_parameters& pa = metapop_parameters(),
-//               const subsample_deme_filter_parameters& subp = subsample_deme_filter_parameters())
-//{
-//
-//}
+metapopulation::metapopulation(const combo_tree_seq& bases,
+                               behave_cscore& sc,
+                               const metapop_parameters& pa,
+                               const subsample_deme_filter_parameters& subp) :
+            _cached_dst(pa.diversity),
+            _params(pa),
+            _filter_params(subp),
+            _cscorer(sc),
+            _merge_count(0),
+            _best_cscore(worst_composite_score),
+            _ensemble(sc, pa.ensemble_params)
+{
+    init(bases);
+}
 
+metapopulation::metapopulation(const HandleSeq& bases,
+               behave_cscore& sc,
+               const metapop_parameters& pa = metapop_parameters(),
+               const subsample_deme_filter_parameters& subp = subsample_deme_filter_parameters())
+{
+
+}
 
 metapopulation::metapopulation(const combo_tree& base,
                behave_cscore& sc,
@@ -85,7 +99,7 @@ metapopulation::metapopulation(const Handle& base,
         _best_cscore(worst_composite_score),
         _ensemble(sc, pa.ensemble_params)
 {
-            combo_tree_seq bases(1, base);
+            HandleSeq bases(1, base);
             init(bases);
 }
 
@@ -107,6 +121,21 @@ void metapopulation::init(const combo_tree_seq& exemplars)
 
     update_best_candidates(candidates);
     merge_candidates(candidates);
+}
+
+void metapopulation::init(const HandleSeq& exemplars)
+{
+
+    combo_tree_seq c_exemplars;
+    AtomeseToCombo to_combo;
+
+    boost::transform(exemplars,
+                     std::inserter(c_exemplars, c_exemplars.begin()),
+                     [&to_combo](const Handle h) {
+                         return *to_combo(h).first.begin();
+                     });
+
+    init(c_exemplars);
 }
 
 // -------------------------------------------------------------------

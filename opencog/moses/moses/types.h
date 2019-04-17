@@ -246,6 +246,29 @@ static inline behavioral_score operator-(const behavioral_score& lhs,
 	return bs;
 }
 
+/// scored_combo_tree_hash_set provides an O(1) way of determining if
+/// a combo tree is in the set, or not (and getting its score, if it is).
+/// Its O(1) in theory. In practice, it can be quite slow, for two
+/// reasons: one is that it needs to compute the hash of the tree, and
+/// since trees can be big, this will be expensive.  The other problem
+/// it that this invokes the copy constructor for insertion.
+/// See below for other containers with different properties.
+
+typedef std::unordered_set<scored_combo_tree,
+                scored_combo_tree_hash,
+                // scored_combo_tree_equal> scored_combo_tree_hash_set;
+                scored_combo_tree_equal> scored_combo_tree_set;
+
+typedef std::unordered_set<scored_atomese,
+                scored_atomese_hash,
+                // scored_atomese_equal> scored_atomese_hash_set;
+                scored_atomese_equal> scored_atomese_set;
+
+typedef boost::variant<scored_combo_tree_set,
+         scored_atomese_set> scored_set;
+
+typedef boost::variant<combo::combo_tree, Handle> program;
+
 /// A single combo tree, together with various score metrics for it.
 ///
 /// Large parts of the system need to track a combo tree, along with
@@ -258,26 +281,27 @@ static inline behavioral_score operator-(const behavioral_score& lhs,
 /// -- a behavioral score (how well the tree did on each row of a table;
 ///    exactly which table it is is implicit)
 /// -- a boosting weight (used to implement the boosting algorithm)
-class scored_combo_tree : public boost::equality_comparable<scored_combo_tree>
+template<typename _Program>
+class scored_program : public boost::equality_comparable<scored_program>
 {
 public:
-	scored_combo_tree(combo::combo_tree tr,
-	                  demeID_t id=demeID_t(),
-	                  composite_score cs=composite_score(),
-	                  behavioral_score bs=behavioral_score())
-		: _tree(tr), _deme_id(id), _cscore(cs), _bscore(bs), _weight(1.0)
-		{}
+	scored_program(_Program program,
+            demeID_t id=demeID_t(),
+                   composite_score cs=composite_score(),
+                   behavioral_score bs=behavioral_score())
+		:_program(program), _deme_id(id), _cscore(cs), _bscore(bs), _weight(1.0)
+    {}
 
 private:
-	combo::combo_tree _tree;
+    _Program _program;
 	demeID_t _deme_id;
 	composite_score _cscore;
 	behavioral_score _bscore;
 	double _weight;
 
 public:
-	const combo::combo_tree& get_tree() const { return _tree; }
-	combo::combo_tree& get_tree() { return _tree; }
+	const _Program& get_tree() const;
+	_Program& get_tree();
 
 	const demeID_t get_demeID() const { return _deme_id; }
 	demeID_t get_demeID() { return _deme_id; }
@@ -315,67 +339,41 @@ public:
 	score_t get_uniformity_penalty() const { return _cscore.get_uniformity_penalty(); }
 	score_t get_penalty() const { return _cscore.get_penalty(); }
 
-	bool operator==(const scored_combo_tree& r) const;
+	bool operator==(const scored_program& r) const;
 };
 
-class scored_atomese : public boost::equality_comparable<scored_atomese>
+class scored_combo_tree :  scored_program<combo::combo_tree>
 {
 public:
-    scored_atomese(Handle h,
-                   demeID_t id=demeID_t(),
-                   composite_score cs=composite_score(),
-                   behavioral_score bs=behavioral_score())
-            : _atomese(h), _deme_id(id), _cscore(cs), _bscore(bs), _weight(1.0)
-    {}
+	scored_combo_tree(combo::combo_tree tr,
+					  demeID_t id=demeID_t(),
+					  composite_score cs=composite_score(),
+					  behavioral_score bs=behavioral_score()) : scored_program(tr, id, cs, bs)
+	{}
 
 private:
-    Handle _atomese;
-    demeID_t _deme_id;
-    composite_score _cscore;
-    behavioral_score _bscore;
-    double _weight;
+	combo::combo_tree _tree;
 
 public:
-    const Handle& get_handle() const { return _atomese; }
-    Handle& get_tree() { return _atomese; }
+	const combo::combo_tree& get_tree() const { return _tree; }
+	combo::combo_tree& get_tree() { return _tree; }
+};
 
-    const demeID_t get_demeID() const { return _deme_id; }
-    demeID_t get_demeID() { return _deme_id; }
+class scored_atomese :  scored_program<Handle>
+{
+public:
+	scored_atomese(Handle h,
+				   demeID_t id=demeID_t(),
+				   composite_score cs=composite_score(),
+				   behavioral_score bs=behavioral_score()) : scored_program(h, id, cs, bs)
+	{}
 
-    const behavioral_score& get_bscore() const
-    {
-        return _bscore;
-    }
-    void set_bscore(const behavioral_score& bs)
-    {
-        _bscore = bs;
-    }
-    double get_weight() const
-    {
-        return _weight;
-    }
-    void set_weight(double w)
-    {
-        _weight = w;
-    }
-    const composite_score& get_composite_score() const
-    {
-        return _cscore;
-    }
-    composite_score& get_composite_score()
-    {
-        return _cscore;
-    }
+private:
+	combo::combo_tree _tree;
 
-    /* Utility wrappers */
-    score_t get_score() const { return _cscore.get_score(); }
-    complexity_t get_complexity() const { return _cscore.get_complexity(); }
-    score_t get_penalized_score() const { return _cscore.get_penalized_score(); }
-    score_t get_complexity_penalty() const { return _cscore.get_complexity_penalty(); }
-    score_t get_uniformity_penalty() const { return _cscore.get_uniformity_penalty(); }
-    score_t get_penalty() const { return _cscore.get_penalty(); }
-
-    bool operator==(const scored_atomese& r) const;
+public:
+	const combo::combo_tree& get_tree() const { return _tree; }
+	combo::combo_tree& get_tree() { return _tree; }
 };
 
 // =======================================================================
@@ -438,24 +436,6 @@ struct scored_atomese_equal
     bool operator()(const scored_atomese&,
                     const scored_atomese&) const;
 };
-
-/// scored_combo_tree_hash_set provides an O(1) way of determining if
-/// a combo tree is in the set, or not (and getting its score, if it is).
-/// Its O(1) in theory. In practice, it can be quite slow, for two
-/// reasons: one is that it needs to compute the hash of the tree, and
-/// since trees can be big, this will be expensive.  The other problem
-/// it that this invokes the copy constructor for insertion.
-/// See below for other containers with different properties.
-typedef std::unordered_set<scored_combo_tree,
-                           scored_combo_tree_hash,
-                           // scored_combo_tree_equal> scored_combo_tree_hash_set;
-                           scored_combo_tree_equal> scored_combo_tree_set;
-
-typedef std::unordered_set<scored_atomese,
-        scored_atomese_hash,
-        // scored_atomese_equal> scored_atomese_hash_set;
-        scored_atomese_equal> scored_atomese_set;
-
 
 /// scored_combo_tree_tset offers a fairly fast, mutable storage for
 /// combo trees, based on the combo tree itself, and not how its scored.

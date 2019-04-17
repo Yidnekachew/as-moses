@@ -570,7 +570,7 @@ void metapopulation::keep_top_unique_candidates(
 
 /// Update the record of the best score seen, and the associated tree.
 /// Safe to call in a multi-threaded context.
-void metapopulation::update_best_candidates(const scored_combo_tree_set& candidates)
+void metapopulation::update_best_candidates(const scored_set& candidates)
 {
     if (candidates.empty())
         return;
