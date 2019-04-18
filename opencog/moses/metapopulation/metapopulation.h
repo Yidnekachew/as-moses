@@ -183,11 +183,11 @@ public:
      * @return the iterator of the selected exemplar, if no such
      *         exemplar exists then return end()
      */
-    scored_combo_tree_ptr_set::const_iterator select_exemplar();
+    scored_program_ptr_set::const_iterator select_exemplar();
 
-    const scored_combo_tree_ptr_set& get_trees() const { return _scored_trees; }
-    scored_combo_tree_ptr_set::const_iterator begin() const { return _scored_trees.begin(); }
-    scored_combo_tree_ptr_set::const_iterator end() const { return _scored_trees.end(); }
+    const scored_program_ptr_set& get_trees() const { return _scored_trees; }
+    scored_program_ptr_set::const_iterator begin() const { return _scored_trees.begin(); }
+    scored_program_ptr_set::const_iterator end() const { return _scored_trees.end(); }
     bool empty() const { return _scored_trees.empty(); }
     size_t size() const { return _scored_trees.size(); }
     void clear() { _scored_trees.clear(); }
@@ -205,7 +205,7 @@ public:
     /// scored_combo_tree_ptr_set and not having to copy and
     /// reallocate candidates once they are selected. It might be
     /// minor though in terms of performance gain. FIXME.
-    void merge_candidates(scored_combo_tree_set& candidates);
+    void merge_candidates(scored_program_set& candidates);
 
     /**
      * merge demes -- convert instances to trees, and merge them
@@ -232,7 +232,7 @@ public:
 
     /// Update the record of the best score seen, and the associated tree.
     /// Safe to call in a multi-threaded context.
-    void update_best_candidates(const scored_set& candidates);
+    void update_best_candidates(const scored_program_set& candidates);
 
 private:
     /**
@@ -272,14 +272,14 @@ private:
     // Return the set of candidates not present in the metapopulation.
     // This makes merging faster because it decreases the number of
     // calls of dominates.
-    scored_combo_tree_set get_new_candidates(const scored_combo_tree_set&);
+    scored_program_set get_new_candidates(const scored_program_set&);
 
     // Trim down deme before merging based the scores
     void trim_down_deme(deme_t& deme) const;
 
     // convert instances in deme to trees
     void deme_to_trees(deme_t&, const representation&,
-                       scored_combo_tree_set&);
+                       scored_program_set&);
 
     /// Given the current complexity temp, return the range of scores that
     /// are likely to be selected by the select_exemplar routine. Due to
@@ -424,7 +424,7 @@ private:
     // reciprocal of random_access_view
     static scored_combo_tree_set to_set(const scored_combo_tree_ptr_vec& bcv);
 
-    void remove_dominated(scored_combo_tree_set& bcs, unsigned jobs = 1);
+    void remove_dominated(scored_program_set& bcs, unsigned jobs = 1);
 
     // split in 2 of equal size
     static scored_combo_tree_ptr_vec_pair
@@ -461,7 +461,7 @@ private:
 
     // merge nondominated candidate to the metapopulation assuming
     // that bcs contains no dominated candidates within itself
-    void merge_nondominated(const scored_combo_tree_set& bcs, unsigned jobs = 1);
+    void merge_nondominated(const scored_program_set& bcs, unsigned jobs = 1);
 
     static boost::logic::tribool dominates(const behavioral_score& x,
                                            const behavioral_score& y);
@@ -548,7 +548,7 @@ public:
     std::ostream& ostream_metapop(std::ostream&, int n = INT_MAX) const;
 
 private:
-    void log_selected_exemplar(scored_combo_tree_ptr_set::const_iterator);
+    void log_selected_exemplar(scored_program_ptr_set::const_iterator);
 
 protected:
     // --------------------- Internal state -----------------------
@@ -558,7 +558,7 @@ protected:
 
     behave_cscore& _cscorer;
 
-    scored_combo_tree_ptr_set _scored_trees;
+    scored_program_ptr_set _scored_trees;
 
     static const unsigned _min_pool_size = 250;
 
@@ -568,7 +568,7 @@ protected:
     composite_score _best_cscore;
 
     // Trees with composite score equal to _best_cscore.
-    scored_combo_tree_set _best_candidates;
+    scored_program_set _best_candidates;
 
     /// _visited_exemplars contains the exemplars of demes that have
     ///  been previously expanded. The count indicated the number of

@@ -122,7 +122,7 @@ struct metapop_printer
                    << "    sum = 0.0 \\\n";
                 for (const scored_combo_tree& sct : tree_set)
                     ostream_combo_tree(ss << "      + " << sct.get_weight()
-                                       << " * ", sct.get_tree(),
+                                       << " * ", sct.get_program(),
                                        output_with_labels? ilabels :
                                        std::vector<std::string>(),
                                        fmt) << "\\\n";
@@ -141,12 +141,12 @@ struct metapop_printer
             }
 
         } else {
-            // scored_combo_tree_ptr_set keeps the trees in penalized-
+            // scored_program_ptr_set keeps the trees in penalized-
             // score-sorted order. We want this, so that we can print
             // them out in this order.  Note, however, the printed scores
             // are the raw scores, not the penalized scores, so the
             // results can seem out-of-order.
-            scored_combo_tree_ptr_set tree_set;
+            scored_program_ptr_set tree_set;
             if (output_only_best) {
                 for (const scored_combo_tree& sct : metapop.best_candidates())
                    tree_set.insert(new scored_combo_tree(sct));
@@ -173,7 +173,7 @@ struct metapop_printer
                        << "def pdiv(a, b): return a / (b + 0.000001)\n"
                        << "def moses_eval(i):\n"
                        << "    return ";
-                    ostream_combo_tree(ss, sct.get_tree(),
+                    ostream_combo_tree(ss, sct.get_program(),
                                        output_with_labels? ilabels :
                                        std::vector<std::string>(),
                                        fmt);
@@ -204,7 +204,7 @@ struct metapop_printer
             if (output_ensemble) {
                 stringstream ssb;
                 for (const auto& cand : metapop.get_ensemble().get_ensemble()) {
-                    ssb << cand.get_weight() << " " << cand.get_tree();
+                    ssb << cand.get_weight() << " " << cand.get_program();
                 }
 
                 if (ssb.str().empty())

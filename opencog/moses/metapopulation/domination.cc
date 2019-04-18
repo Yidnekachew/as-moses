@@ -98,7 +98,7 @@ boost::logic::tribool metapopulation::dominates(const behavioral_score& x,
 }
 
 
-void metapopulation::remove_dominated(scored_combo_tree_set& bcs, unsigned jobs)
+void metapopulation::remove_dominated(scored_program_set& bcs, unsigned jobs)
 {
     // get the nondominated candidates
     scored_combo_tree_ptr_vec bcv = random_access_view(bcs);
@@ -282,7 +282,7 @@ metapopulation::get_nondominated_disjoint_rec(const scored_combo_tree_ptr_vec& b
 
 // merge nondominated candidate to the metapopulation assuming
 // that bcs contains no dominated candidates within itself
-void metapopulation::merge_nondominated(const scored_combo_tree_set& bcs, unsigned jobs)
+void metapopulation::merge_nondominated(const scored_program_set& bcs, unsigned jobs)
 {
     scored_combo_tree_ptr_vec bcv = random_access_view(bcs);
     scored_combo_tree_ptr_vec bcv_mp;

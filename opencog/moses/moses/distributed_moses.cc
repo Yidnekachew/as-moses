@@ -360,7 +360,7 @@ void distributed_moses(metapopulation& mp,
     const boost::program_options::variables_map& vm = pa.vm;
     const jobs_t& jobs = pa.jobs;
 
-    typedef scored_combo_tree_ptr_set_cit mp_cit;
+    typedef scored_program_ptr_set_cit mp_cit;
 
     host_proc_map hpm = init(jobs);
 
@@ -389,7 +389,7 @@ void distributed_moses(metapopulation& mp,
 
             const string& hostname = get_hostname(*hpm_it);
             unsigned n_jobs = jobs.find(hostname)->second;
-            const combo_tree& tr = exemplar->get_tree();
+            const combo_tree& tr = exemplar->get_program();
 
             string cmdline =
                 build_cmdline(vm, tr, hostname, n_jobs,

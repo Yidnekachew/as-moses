@@ -106,7 +106,7 @@ metapopulation::metapopulation(const Handle& base,
 // Init the metapopulation with the following set of exemplars.
 void metapopulation::init(const combo_tree_seq& exemplars)
 {
-    scored_combo_tree_set candidates;
+    scored_program_set candidates;
     for (const combo_tree& base : exemplars) {
         composite_score csc(_cscorer.get_cscore(base));
 
@@ -146,7 +146,7 @@ bool metapopulation::has_been_visited(const scored_combo_tree& tr) const
     return _visited_exemplars.find(tr) != _visited_exemplars.cend();
 }
 
-void metapopulation::log_selected_exemplar(scored_combo_tree_ptr_set::const_iterator exemplar_it)
+void metapopulation::log_selected_exemplar(scored_program_ptr_set::const_iterator exemplar_it)
 {
     if (not logger().is_debug_enabled()) return;
 
@@ -160,13 +160,13 @@ void metapopulation::log_selected_exemplar(scored_combo_tree_ptr_set::const_iter
         logger().debug() << "Selected the " << pos
                          << "th exemplar, from deme " << xmplr.get_demeID()
                          << ", for the " << nth_vst << "th time(s)";
-        logger().debug() << "Exemplar tree : " << xmplr.get_tree();
+        logger().debug() << "Exemplar tree : " << xmplr.get_program();
         logger().debug() << "With composite score : "
                          << xmplr.get_composite_score();
     }
 }
 
-scored_combo_tree_ptr_set::const_iterator metapopulation::select_exemplar()
+scored_program_ptr_set::const_iterator metapopulation::select_exemplar()
 {
     OC_ASSERT(!empty(), "Empty metapopulation in select_exemplar().");
 
@@ -175,7 +175,7 @@ scored_combo_tree_ptr_set::const_iterator metapopulation::select_exemplar()
     // Shortcut for special case, as sometimes, the very first time
     // though, the score is invalid.
     if (size() == 1) {
-        scored_combo_tree_ptr_set::const_iterator selex = _scored_trees.cbegin();
+        scored_program_ptr_set::const_iterator selex = _scored_trees.cbegin();
         if(_params.revisit < 0 or
            (_params.revisit + 1 > (int)_visited_exemplars[*selex])) // not enough visited
             _visited_exemplars[*selex]++;
@@ -250,7 +250,7 @@ scored_combo_tree_ptr_set::const_iterator metapopulation::select_exemplar()
                                                          sum, randGen()));
     // cout << "select_exemplar(): sum=" << sum << " fwd =" << fwd
     // << " size=" << probs.size() << " frac=" << fwd/((float)probs.size()) << endl;
-    scored_combo_tree_ptr_set::const_iterator selex = std::next(_scored_trees.begin(), fwd);
+    scored_program_ptr_set::const_iterator selex = std::next(_scored_trees.begin(), fwd);
 
     // We increment _visited_exemplar
     _visited_exemplars[*selex]++;
@@ -295,7 +295,7 @@ const combo_tree& metapopulation::best_tree() const
     if (_params.do_boosting) {
         return _ensemble.get_weighted_tree();
     }
-    return best_candidates().begin()->get_tree();
+    return best_candidates().begin()->get_program();
 }
 
 std::ostream& metapopulation::ostream_metapop(std::ostream& out, int maxcnt) const

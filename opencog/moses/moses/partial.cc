@@ -141,7 +141,7 @@ bool partial_solver::eval_candidates(const scored_combo_tree_set& cands)
     logger().info() << "well-enough received " << cands.size() << " candidates";
     _most_good = 0;
     for (auto &item : cands) {
-        const combo_tree& cand = item.get_tree();
+        const combo_tree& cand = item.get_program();
         eval_candidate(cand);
     }
 
@@ -169,7 +169,7 @@ void partial_solver::final_cleanup(const metapopulation& cands)
     // and feed them back in as exemplars, for scoring.
     _exemplars.clear();
     for (auto &item : cands) {
-        combo_tree cand = item.get_tree();
+        combo_tree cand = item.get_program();
         sib_it ldr = _leader.begin();
         sib_it cit = cand.begin();
         cit = cit.begin();
@@ -252,7 +252,7 @@ void partial_solver::trim_table(CTable& taby,
 void partial_solver::refresh(const metapopulation& cands)
 {
     for (const auto &item : cands)
-        _exemplars.push_back(item.get_tree());
+        _exemplars.push_back(item.get_program());
 }
 
 /// Evaluate a single candidate

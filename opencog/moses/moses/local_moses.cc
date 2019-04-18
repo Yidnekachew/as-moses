@@ -55,7 +55,7 @@ static bool expand_deme(metapopulation& mp,
     // over exemplars until we find one that expands.
     // XXX When would one never expand?  Wouldn't that be a bug?
     while (1) {
-        scored_combo_tree_ptr_set_cit exemplar = mp.select_exemplar();
+        scored_program_ptr_set_cit exemplar = mp.select_exemplar();
 
         // Should have found something by now.
         if (exemplar == mp.end()) {
@@ -68,10 +68,10 @@ static bool expand_deme(metapopulation& mp,
         }
 
         // if create_deme returned true, we are good to go.
-        if (dex.create_demes(exemplar->get_tree(), stats.n_expansions))
+        if (dex.create_demes(exemplar->get_program(), stats.n_expansions))
             break;
 
-        logger().error() << "Exemplar: " << exemplar->get_tree();
+        logger().error() << "Exemplar: " << exemplar->get_program();
         OC_ASSERT(false, "Exemplar failed to expand!\n");
     }
 

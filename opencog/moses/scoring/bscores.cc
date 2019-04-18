@@ -95,7 +95,7 @@ behavioral_score logical_bscore::operator()(const scored_combo_tree_set &ensembl
 	// the ensemble.
 	behavioral_score hypoth(_size, 0.0);
 	for (const scored_combo_tree &sct: ensemble) {
-		combo::complete_truth_table tt(sct.get_tree(), _arity);
+		combo::complete_truth_table tt(sct.get_program(), _arity);
 		score_t weight = sct.get_weight();
 		for (size_t i = 0; i < _size; i++) {
 			// Add +1 if prediction is true and -1 if prediction is false.
@@ -379,7 +379,7 @@ behavioral_score ctruth_table_bscore::operator()(const scored_combo_tree_set &en
 	behavioral_score hypoth(sz, 0.0);
 	for (const scored_combo_tree &sct: ensemble) {
 		// apply each tree, in turn.
-		interpreter_visitor iv(sct.get_tree());
+		interpreter_visitor iv(sct.get_program());
 		auto interpret_tr = boost::apply_visitor(iv);
 		score_t weight = sct.get_weight();
 

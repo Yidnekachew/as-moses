@@ -194,7 +194,7 @@ behavioral_score select_bscore::operator()(const scored_combo_tree_set& ensemble
     // the ensemble.
     behavioral_score hypoth (_size, 0.0);
     for (const scored_combo_tree& sct: ensemble) {
-        const combo_tree& tr = sct.get_tree();
+        const combo_tree& tr = sct.get_program();
         score_t trweight = sct.get_weight();
 
         interpreter_visitor iv(tr);

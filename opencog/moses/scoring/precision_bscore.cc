@@ -431,7 +431,7 @@ behavioral_score precision_bscore::exact_selection(const scored_combo_tree_set& 
     // ensemble into a single tree, so that we iterate over the table
     // just once, instead of once-per-tree.
     if (1 == ensemble.size()) {
-        return this->operator()(ensemble.begin()->get_tree());
+        return this->operator()(ensemble.begin()->get_program());
     }
 
     combo_tree tr;
@@ -439,7 +439,7 @@ behavioral_score precision_bscore::exact_selection(const scored_combo_tree_set& 
     head = tr.set_head(combo::id::logical_or);
 
     for (const scored_combo_tree& sct : ensemble)
-        tr.append_child(head, sct.get_tree().begin());
+        tr.append_child(head, sct.get_program().begin());
 
     return this->operator()(tr);
 #endif // SCORE_MANY_TREES
@@ -456,7 +456,7 @@ behavioral_score precision_bscore::bias_selection(const scored_combo_tree_set& e
     // picked with appropriate weight.
     std::vector<double> hypoth(_size, 0.0);
     for (const scored_combo_tree& sct: ensemble) {
-        const combo_tree& tr = sct.get_tree();
+        const combo_tree& tr = sct.get_program();
         score_t trweight = sct.get_weight();
 
         interpreter_visitor iv(tr);

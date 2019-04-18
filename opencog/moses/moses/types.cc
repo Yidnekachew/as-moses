@@ -50,7 +50,7 @@ demeID_t::demeID_t(unsigned expansion, unsigned breadth_first, unsigned ss_deme)
 	         to_string(ss_deme)) {}
 
 bool scored_program::operator==(const scored_program& r) const {
-	return get_tree() == r.get_tree()
+	return get_program() == r.get_program()
 		and get_demeID() == r.get_demeID()
 		and get_bscore() == r.get_bscore()
 		and get_weight() == r.get_weight()
@@ -60,7 +60,7 @@ bool scored_program::operator==(const scored_program& r) const {
 size_t scored_combo_tree_hash::operator()(const scored_combo_tree& sct) const
 {
 	size_t hash = 0;
-	const combo::combo_tree& tr = sct.get_tree();
+	const combo::combo_tree& tr = sct.get_program();
 	for (combo::vertex vtx : tr) {
 		boost::hash_combine(hash, combo::hash_value(vtx));
 	}
@@ -71,7 +71,7 @@ size_t scored_atomese_hash::operator()(const scored_atomese& sct) const
 {
 //	size_t hash = 0;
 //	const Handle
-//	const combo::combo_tree& tr = sct.get_tree();
+//	const combo::combo_tree& tr = sct.get_program();
 //	for (combo::vertex vtx : tr) {
 //		boost::hash_combine(hash, combo::hash_value(vtx));
 //	}
@@ -81,7 +81,7 @@ size_t scored_atomese_hash::operator()(const scored_atomese& sct) const
 bool scored_combo_tree_equal::operator()(const scored_combo_tree& tr1,
                                          const scored_combo_tree& tr2) const
 {
-	return tr1.get_tree() == tr2.get_tree();
+	return tr1.get_program() == tr2.get_program();
 }
 
 bool scored_atomese_equal::operator()(const scored_atomese& a1,
@@ -102,7 +102,7 @@ bool sct_score_greater::operator()(const scored_combo_tree& bs_tr1,
 	if (csc1 < csc2) return false;
 
 	// If we are here, then they are equal.  We are desperate to break
-	// a tie, because otherwise, the scored_combo_tree_ptr_set will discard
+	// a tie, because otherwise, the scored_program_ptr_set will discard
 	// anything that compares equal, and we really don't want that.
 	score_t sc1 = csc1.get_score();
 	score_t sc2 = csc2.get_score();
@@ -114,7 +114,7 @@ bool sct_score_greater::operator()(const scored_combo_tree& bs_tr1,
 	// the tie.  Lets look at how the size of the trees compare. Note
 	// that size_tree_order uses tree size first, then the lexicographic
 	// order on the trees themselves, next.
-	return size_tree_order<vertex>()(bs_tr1.get_tree(), bs_tr2.get_tree());
+	return size_tree_order<vertex>()(bs_tr1.get_program(), bs_tr2.get_program());
 }
 
 // See header file for description.
@@ -123,7 +123,7 @@ bool sct_tree_greater::operator()(const scored_combo_tree& bs_tr1,
 {
 	// size_tree_order first uses tree size, then the lexicographic
 	// order on the trees themselves, for comparisons.
-	return size_tree_order<vertex>()(bs_tr1.get_tree(), bs_tr2.get_tree());
+	return size_tree_order<vertex>()(bs_tr1.get_program(), bs_tr2.get_program());
 }
 
 // the empty composite_score ctor returns the worst composite score
@@ -201,7 +201,7 @@ std::ostream& ostream_scored_combo_tree(std::ostream& out,
 {
 	if (output_score)
 		out << sct.get_score() << " ";
-	ostream_combo_tree(out, sct.get_tree(), labels, fmt);
+	ostream_combo_tree(out, sct.get_program(), labels, fmt);
 
 	// Is this really used?
 	static const bool output_weight = false;

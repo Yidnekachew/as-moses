@@ -207,7 +207,7 @@ void moses_mpi_comm::send_deme(const metapopulation& mp, int n_evals)
     MPI::COMM_WORLD.Send(&num_trees, 1, MPI::INT, ROOT_NODE, MSG_NUM_COMBO_TREES);
     sent_bytes += 2*sizeof(int);
 
-    scored_combo_tree_ptr_set_cit it;
+    scored_program_ptr_set_cit it;
     for (it = mp.begin(); it != mp.end(); ++it) {
         const scored_combo_tree& btr = *it;
 
@@ -215,7 +215,7 @@ void moses_mpi_comm::send_deme(const metapopulation& mp, int n_evals)
         // full behavioural score.  Basically, the full bscore is just
         // not needed for the current most popular merge technique.
         send_cscore(btr.get_composite_score(), ROOT_NODE);
-        send_tree(btr.get_tree(), ROOT_NODE);
+        send_tree(btr.get_program(), ROOT_NODE);
     }
 }
 
@@ -566,7 +566,7 @@ void mpi_moses(metapopulation& mp,
     {
         // Feeder: push work out to each worker.
         while ((!wrkpool.empty()) && !done) {
-            scored_combo_tree_ptr_set_cit exemplar = mp.select_exemplar();
+            scored_program_ptr_set_cit exemplar = mp.select_exemplar();
             if (exemplar == mp.end()) {
 
                 if ((tot_workers == wrkpool.size()) && (0 == source)) {
@@ -582,7 +582,7 @@ void mpi_moses(metapopulation& mp,
                 break;
             }
 
-            const combo_tree& extree = exemplar->get_tree(); 
+            const combo_tree& extree = exemplar->get_program();
             int worker = wrkpool.front();
             wrkpool.pop();
             int max_evals = pa.max_evals - stats.n_evals;

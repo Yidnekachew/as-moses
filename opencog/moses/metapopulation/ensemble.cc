@@ -76,7 +76,7 @@ static inline bool is_correct(score_t val)
  * Implement a boosted ensemble. Candidate combo trees are added to
  * the ensemble one at a time, weights are adjusted, and etc.
  */
-void ensemble::add_candidates(scored_combo_tree_set& cands)
+void ensemble::add_candidates(scored_program_set& cands)
 {
 	if (_params.experts) {
 		add_expert(cands);
@@ -184,7 +184,7 @@ void ensemble::add_expert(scored_combo_tree_set& cands)
 		num++;
 		// Add all elements that have a perfect score, or at least,
 		// a good-enough score.
-		double err = _bscorer.get_error(sct.get_tree());
+		double err = _bscorer.get_error(sct.get_program());
 
 		OC_ASSERT(0.0 <= err+_tolerance and err-_tolerance <= 1.0,
 		          "boosting score out of range; got %g", err);
@@ -322,7 +322,7 @@ const combo::combo_tree& ensemble::get_adaboost_tree() const
 	_weighted_tree.clear();
 
 	if (1 == _scored_trees.size()) {
-		_weighted_tree = _scored_trees.begin()->get_tree();
+		_weighted_tree = _scored_trees.begin()->get_program();
 		return _weighted_tree;
 	}
 
@@ -346,7 +346,7 @@ const combo::combo_tree& ensemble::get_adaboost_tree() const
 		vertex half = -0.5;
 		_weighted_tree.append_child(minus, half);
 		impulse = _weighted_tree.append_child(minus, combo::id::impulse);
-		_weighted_tree.append_child(impulse, sct.get_tree().begin());
+		_weighted_tree.append_child(impulse, sct.get_program().begin());
 	}
 
 	return _weighted_tree;
@@ -362,7 +362,7 @@ const combo::combo_tree& ensemble::get_exact_tree() const
 {
 	_weighted_tree.clear();
 	if (1 == _scored_trees.size()) {
-		_weighted_tree = _scored_trees.begin()->get_tree();
+		_weighted_tree = _scored_trees.begin()->get_program();
 		return _weighted_tree;
 	}
 
@@ -370,7 +370,7 @@ const combo::combo_tree& ensemble::get_exact_tree() const
 	head = _weighted_tree.set_head(combo::id::logical_or);
 
 	for (const scored_combo_tree& sct : _scored_trees)
-		_weighted_tree.append_child(head, sct.get_tree().begin());
+		_weighted_tree.append_child(head, sct.get_program().begin());
 
 	// Very surprisingly, reduct does not seem to make a differrence! Hmmm.
 	// std::cout << "before reduct " << tree_complexity(_weighted_tree) << std::endl;
@@ -392,7 +392,7 @@ const combo::combo_tree& ensemble::get_expert_tree() const
 {
 	_weighted_tree.clear();
 	if (1 == _scored_trees.size()) {
-		_weighted_tree = _scored_trees.begin()->get_tree();
+		_weighted_tree = _scored_trees.begin()->get_program();
 		return _weighted_tree;
 	}
 
@@ -416,7 +416,7 @@ const combo::combo_tree& ensemble::get_expert_tree() const
 
 		// impulse is +1.0 if tree is true, else it is equal to 0.0
 		impulse = _weighted_tree.append_child(times, combo::id::impulse);
-		_weighted_tree.append_child(impulse, sct.get_tree().begin());
+		_weighted_tree.append_child(impulse, sct.get_program().begin());
 	}
 	return _weighted_tree;
 }

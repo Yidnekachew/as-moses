@@ -112,7 +112,7 @@ complexity_t bscore_base::get_complexity(const scored_combo_tree_set &ensemble) 
 	double norm = 0.0;
 	for (const scored_combo_tree &sct : ensemble) {
 		double w = sct.get_weight();
-		cpxy += w * tree_complexity(sct.get_tree());
+		cpxy += w * tree_complexity(sct.get_program());
 		norm += w;
 	}
 

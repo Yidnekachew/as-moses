@@ -45,12 +45,12 @@ void metapopulation::set_diversity()
 {
     logger().debug("Compute uniformity penalties of the metapopulation");
 
-    scored_combo_tree_ptr_set pool; // new metapopulation
+    scored_program_ptr_set pool; // new metapopulation
 
     // structure to remember a partially aggredated distorted
     // uniformity penalties between the candidates and the ones in
     // the pool (to avoid recomputing them)
-    typedef scored_combo_tree_ptr_set_it psi;
+    typedef scored_program_ptr_set_it psi;
     typedef std::pair<psi, dp_t> bsct_dp_pair;
     std::vector<bsct_dp_pair> tmp;
     psi last = _scored_trees.end();
@@ -119,7 +119,7 @@ void metapopulation::set_diversity()
 
             if (logger().is_fine_enabled()) {
                 stringstream ss;
-                ss << "Diversity for candidate: " << bsct.get_tree()
+                ss << "Diversity for candidate: " << bsct.get_program()
                    << ", last_dst = " << last_dst
                    << ", last_dp = " << last_dp
                    << ", last_ddp = " << last_ddp

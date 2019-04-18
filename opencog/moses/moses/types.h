@@ -264,8 +264,9 @@ typedef std::unordered_set<scored_atomese,
                 // scored_atomese_equal> scored_atomese_hash_set;
                 scored_atomese_equal> scored_atomese_set;
 
-typedef boost::variant<scored_combo_tree_set,
-         scored_atomese_set> scored_set;
+typedef std::unordered_set<scored_program,
+        scored_program_hash,
+        scored_program_equal> scored_program_set;
 
 typedef boost::variant<combo::combo_tree, Handle> program;
 
@@ -286,7 +287,7 @@ class scored_program : public boost::equality_comparable<scored_program>
 {
 public:
 	scored_program(_Program program,
-            demeID_t id=demeID_t(),
+                   demeID_t id=demeID_t(),
                    composite_score cs=composite_score(),
                    behavioral_score bs=behavioral_score())
 		:_program(program), _deme_id(id), _cscore(cs), _bscore(bs), _weight(1.0)
@@ -300,8 +301,9 @@ private:
 	double _weight;
 
 public:
-	const _Program& get_tree() const;
-	_Program& get_tree();
+    virtual const _Program& get_program() const = 0;
+
+    virtual _Program& get_program()= 0;
 
 	const demeID_t get_demeID() const { return _deme_id; }
 	demeID_t get_demeID() { return _deme_id; }
@@ -348,15 +350,15 @@ public:
 	scored_combo_tree(combo::combo_tree tr,
 					  demeID_t id=demeID_t(),
 					  composite_score cs=composite_score(),
-					  behavioral_score bs=behavioral_score()) : scored_program(tr, id, cs, bs)
+					  behavioral_score bs=behavioral_score()) : scored_program(tr, id, cs, bs), _tree(tr)
 	{}
 
 private:
 	combo::combo_tree _tree;
 
 public:
-	const combo::combo_tree& get_tree() const { return _tree; }
-	combo::combo_tree& get_tree() { return _tree; }
+	const combo::combo_tree& get_program() const { return _tree; }
+	combo::combo_tree& get_program() { return _tree; }
 };
 
 class scored_atomese :  scored_program<Handle>
@@ -365,15 +367,15 @@ public:
 	scored_atomese(Handle h,
 				   demeID_t id=demeID_t(),
 				   composite_score cs=composite_score(),
-				   behavioral_score bs=behavioral_score()) : scored_program(h, id, cs, bs)
+				   behavioral_score bs=behavioral_score()) : scored_program(h, id, cs, bs), _handle(h)
 	{}
 
 private:
-	combo::combo_tree _tree;
+	Handle _handle;
 
 public:
-	const combo::combo_tree& get_tree() const { return _tree; }
-	combo::combo_tree& get_tree() { return _tree; }
+	const Handle& get_program() const { return _handle; }
+	Handle& get_program() { return _handle; }
 };
 
 // =======================================================================
@@ -411,27 +413,36 @@ struct sct_tree_greater
 	                const scored_combo_tree&) const;
 };
 
-struct scored_combo_tree_hash
-	: public std::unary_function<scored_combo_tree, size_t>
+struct scored_program_hash
+        : public std::unary_function<scored_program, size_t>
+{
+    virtual size_t operator()(const scored_program&) const = 0;
+};
+
+struct scored_combo_tree_hash : scored_program_hash
 {
 	size_t operator()(const scored_combo_tree&) const;
 };
 
-struct scored_combo_tree_equal
-	: public std::binary_function<scored_combo_tree, scored_combo_tree, bool>
+struct scored_atomese_hash : scored_program_hash
+{
+    size_t operator()(const scored_atomese&) const;
+};
+
+struct scored_program_equal
+        : public std::binary_function<scored_program, scored_program, bool>
+{
+    virtual bool operator()(const scored_program&,
+                            const scored_program&) const = 0;
+};
+
+struct scored_combo_tree_equal : scored_program_equal
 {
 	bool operator()(const scored_combo_tree&,
 	                const scored_combo_tree&) const;
 };
 
-struct scored_atomese_hash
-        : public std::unary_function<scored_atomese, size_t>
-{
-    size_t operator()(const scored_atomese&) const;
-};
-
-struct scored_atomese_equal
-        : public std::binary_function<scored_atomese, scored_atomese, bool>
+struct scored_atomese_equal : scored_program_equal
 {
     bool operator()(const scored_atomese&,
                     const scored_atomese&) const;
@@ -457,9 +468,9 @@ typedef boost::ptr_set<scored_combo_tree,
 /// in the set. You have been warned!
 ///
 typedef boost::ptr_set<scored_combo_tree,
-                       sct_score_greater> scored_combo_tree_ptr_set;
-typedef scored_combo_tree_ptr_set::iterator scored_combo_tree_ptr_set_it;
-typedef scored_combo_tree_ptr_set::const_iterator scored_combo_tree_ptr_set_cit;
+                       sct_score_greater> scored_program_ptr_set;
+typedef scored_program_ptr_set::iterator scored_program_ptr_set_it;
+typedef scored_program_ptr_set::const_iterator scored_program_ptr_set_cit;
 
 // =======================================================================
 // ostream functions

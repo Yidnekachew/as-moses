@@ -240,7 +240,7 @@ struct metapop_parameters
     // parameters that control the ensemble
     ensemble_parameters ensemble_params;
 
-    bool (*merge_callback)(scored_combo_tree_set&, void*);
+    bool (*merge_callback)(scored_program&, void*);
     void *callback_user_data;
 };
 
