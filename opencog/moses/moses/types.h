@@ -246,30 +246,6 @@ static inline behavioral_score operator-(const behavioral_score& lhs,
 	return bs;
 }
 
-/// scored_combo_tree_hash_set provides an O(1) way of determining if
-/// a combo tree is in the set, or not (and getting its score, if it is).
-/// Its O(1) in theory. In practice, it can be quite slow, for two
-/// reasons: one is that it needs to compute the hash of the tree, and
-/// since trees can be big, this will be expensive.  The other problem
-/// it that this invokes the copy constructor for insertion.
-/// See below for other containers with different properties.
-
-typedef std::unordered_set<scored_combo_tree,
-                scored_combo_tree_hash,
-                // scored_combo_tree_equal> scored_combo_tree_hash_set;
-                scored_combo_tree_equal> scored_combo_tree_set;
-
-typedef std::unordered_set<scored_atomese,
-                scored_atomese_hash,
-                // scored_atomese_equal> scored_atomese_hash_set;
-                scored_atomese_equal> scored_atomese_set;
-
-typedef std::unordered_set<scored_program,
-        scored_program_hash,
-        scored_program_equal> scored_program_set;
-
-typedef boost::variant<combo::combo_tree, Handle> program;
-
 /// A single combo tree, together with various score metrics for it.
 ///
 /// Large parts of the system need to track a combo tree, along with
@@ -301,9 +277,9 @@ private:
 	double _weight;
 
 public:
-    virtual const _Program& get_program() const = 0;
+    virtual const _Program& get_program() const {}
 
-    virtual _Program& get_program()= 0;
+    virtual _Program& get_program() {}
 
 	const demeID_t get_demeID() const { return _deme_id; }
 	demeID_t get_demeID() { return _deme_id; }
@@ -447,6 +423,31 @@ struct scored_atomese_equal : scored_program_equal
     bool operator()(const scored_atomese&,
                     const scored_atomese&) const;
 };
+
+/// scored_combo_tree_hash_set provides an O(1) way of determining if
+/// a combo tree is in the set, or not (and getting its score, if it is).
+/// Its O(1) in theory. In practice, it can be quite slow, for two
+/// reasons: one is that it needs to compute the hash of the tree, and
+/// since trees can be big, this will be expensive.  The other problem
+/// it that this invokes the copy constructor for insertion.
+/// See below for other containers with different properties.
+
+typedef std::unordered_set<scored_combo_tree,
+                scored_combo_tree_hash,
+                // scored_combo_tree_equal> scored_combo_tree_hash_set;
+                scored_combo_tree_equal> scored_combo_tree_set;
+
+typedef std::unordered_set<scored_atomese,
+                scored_atomese_hash,
+                // scored_atomese_equal> scored_atomese_hash_set;
+                scored_atomese_equal> scored_atomese_set;
+
+typedef std::unordered_set<scored_program,
+                scored_program_hash,
+                scored_program_equal> scored_program_set;
+
+typedef boost::variant<combo::combo_tree, Handle> program;
+
 
 /// scored_combo_tree_tset offers a fairly fast, mutable storage for
 /// combo trees, based on the combo tree itself, and not how its scored.

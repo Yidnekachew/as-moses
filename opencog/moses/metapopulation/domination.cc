@@ -302,8 +302,10 @@ void metapopulation::merge_nondominated(const scored_program_set& bcs, unsigned 
         _scored_trees.erase(*cnd);
 
     // add the nondominated ones from bsc
-    for (const scored_program* cnd : bcv_p.first)
+    for (const scored_program* cnd : bcv_p.first){
         _scored_trees.insert(new scored_program(*cnd));
+    }
+
 }
 
 } // ~namespace moses
