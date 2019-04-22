@@ -150,7 +150,7 @@ public:
 
     ~metapopulation() {}
 
-    const scored_combo_tree_set& best_candidates() const;
+    const scored_program_set& best_candidates() const;
     const ensemble& get_ensemble() const { return _ensemble; }
     composite_score best_composite_score() const;
     const combo_tree& best_tree() const;
@@ -327,7 +327,7 @@ private:
      * XXX The implementation here results in a lot of copying of
      * behavioral scores and combo trees, and thus could hurt
      * performance by quite a bit.  To avoid this, we'd need to change
-     * the use of scored_combo_tree_set in this class. This would be
+     * the use of scored_program_set in this class. This would be
      * a fairly big task, and it's currently not clear that its worth
      * the effort, as uniformity_penalty is not yet showing promising
      * results...
@@ -413,33 +413,37 @@ public:
 private:
     friend class ::metapopulationUTest;  // the tester tests the domination code...
 
-    typedef std::pair<scored_combo_tree_set,
-                      scored_combo_tree_set> scored_combo_tree_set_pair;
+    typedef std::pair<scored_program_set,
+                      scored_program_set> scored_program_set_pair;
     typedef std::vector<const scored_combo_tree*> scored_combo_tree_ptr_vec;
-    typedef scored_combo_tree_ptr_vec::iterator scored_combo_tree_ptr_vec_it;
-    typedef scored_combo_tree_ptr_vec::const_iterator scored_combo_tree_ptr_vec_cit;
-    typedef std::pair<scored_combo_tree_ptr_vec,
-                      scored_combo_tree_ptr_vec> scored_combo_tree_ptr_vec_pair;
+    typedef std::vector<const scored_program*> scored_program_ptr_vec;
+    typedef scored_program_ptr_vec::iterator scored_program_ptr_vec_it;
+    typedef scored_program_ptr_vec::const_iterator scored_program_ptr_vec_cit;
+    typedef scored_program_ptr_vec::const_iterator scored_program_ptr_vec_cit;
+    typedef std::pair<scored_program_ptr_vec,
+                      scored_program_ptr_vec> scored_program_ptr_vec_pair;    
+    typedef std::pair<scored_program_ptr_vec,
+            scored_program_ptr_vec> scored_program_ptr_vec_pair;
 
     // reciprocal of random_access_view
-    static scored_combo_tree_set to_set(const scored_combo_tree_ptr_vec& bcv);
+    static scored_program_set to_set(const scored_program_ptr_vec& bcv);
 
     void remove_dominated(scored_program_set& bcs, unsigned jobs = 1);
 
     // split in 2 of equal size
-    static scored_combo_tree_ptr_vec_pair
-    inline split(const scored_combo_tree_ptr_vec& bcv)
+    static scored_program_ptr_vec_pair
+    inline split(const scored_program_ptr_vec& bcv)
     {
-        scored_combo_tree_ptr_vec_cit middle = bcv.begin() + bcv.size() / 2;
-        return make_pair(scored_combo_tree_ptr_vec(bcv.begin(), middle),
-                         scored_combo_tree_ptr_vec(middle, bcv.end()));
+        scored_program_ptr_vec_cit middle = bcv.begin() + bcv.size() / 2;
+        return make_pair(scored_program_ptr_vec(bcv.begin(), middle),
+                         scored_program_ptr_vec(middle, bcv.end()));
     }
 
-    static scored_combo_tree_set
-    get_nondominated_iter(const scored_combo_tree_set& bcs);
+    static scored_program_set
+    get_nondominated_iter(const scored_program_set& bcs);
 
-    scored_combo_tree_ptr_vec
-    get_nondominated_rec(const scored_combo_tree_ptr_vec& bcv,
+    scored_program_ptr_vec
+    get_nondominated_rec(const scored_program_ptr_vec& bcv,
                          unsigned jobs = 1);
 
     // return a pair of sets of nondominated candidates between bcs1
@@ -449,14 +453,14 @@ private:
     // they are used in the code. The first (resp. second) element of
     // the pair corresponds to the nondominated candidates of bcs1
     // (resp. bcs2)
-    scored_combo_tree_set_pair
-    get_nondominated_disjoint(const scored_combo_tree_set& bcs1,
-                              const scored_combo_tree_set& bcs2,
+    scored_program_set_pair
+    get_nondominated_disjoint(const scored_program_set& bcs1,
+                              const scored_program_set& bcs2,
                               unsigned jobs = 1);
 
-    scored_combo_tree_ptr_vec_pair
-    get_nondominated_disjoint_rec(const scored_combo_tree_ptr_vec& bcv1,
-                                  const scored_combo_tree_ptr_vec& bcv2,
+    scored_program_ptr_vec_pair
+    get_nondominated_disjoint_rec(const scored_program_ptr_vec& bcv1,
+                                  const scored_program_ptr_vec& bcv2,
                                   unsigned jobs = 1);
 
     // merge nondominated candidate to the metapopulation assuming

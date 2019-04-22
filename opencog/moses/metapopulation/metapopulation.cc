@@ -48,28 +48,28 @@ metapopulation::metapopulation(const combo_tree_seq& bases,
     init(bases);
 }
 
-metapopulation::metapopulation(const combo_tree_seq& bases,
-                               behave_cscore& sc,
-                               const metapop_parameters& pa,
-                               const subsample_deme_filter_parameters& subp) :
-            _cached_dst(pa.diversity),
-            _params(pa),
-            _filter_params(subp),
-            _cscorer(sc),
-            _merge_count(0),
-            _best_cscore(worst_composite_score),
-            _ensemble(sc, pa.ensemble_params)
-{
-    init(bases);
-}
-
-metapopulation::metapopulation(const HandleSeq& bases,
-               behave_cscore& sc,
-               const metapop_parameters& pa = metapop_parameters(),
-               const subsample_deme_filter_parameters& subp = subsample_deme_filter_parameters())
-{
-
-}
+//metapopulation::metapopulation(const combo_tree_seq& bases,
+//                               behave_cscore& sc,
+//                               const metapop_parameters& pa,
+//                               const subsample_deme_filter_parameters& subp) :
+//            _cached_dst(pa.diversity),
+//            _params(pa),
+//            _filter_params(subp),
+//            _cscorer(sc),
+//            _merge_count(0),
+//            _best_cscore(worst_composite_score),
+//            _ensemble(sc, pa.ensemble_params)
+//{
+//    init(bases);
+//}
+//
+//metapopulation::metapopulation(const HandleSeq& bases,
+//               behave_cscore& sc,
+//               const metapop_parameters& pa = metapop_parameters(),
+//               const subsample_deme_filter_parameters& subp = subsample_deme_filter_parameters())
+//{
+//
+//}
 
 metapopulation::metapopulation(const combo_tree& base,
                behave_cscore& sc,
@@ -282,7 +282,7 @@ composite_score metapopulation::best_composite_score() const
  * not the trees that you are looking for.  Call get_ensemble()
  * instead.
  */
-const scored_combo_tree_set& metapopulation::best_candidates() const
+const scored_program_set& metapopulation::best_candidates() const
 {
     return _best_candidates;
 }
