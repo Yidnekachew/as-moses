@@ -259,7 +259,7 @@ static inline behavioral_score operator-(const behavioral_score& lhs,
 ///    exactly which table it is is implicit)
 /// -- a boosting weight (used to implement the boosting algorithm)
 template<typename _Program>
-class scored_program : public boost::equality_comparable<scored_program>
+class scored_program
 {
 public:
 	scored_program(_Program program,
@@ -278,7 +278,6 @@ private:
 
 public:
     virtual const _Program& get_program() const {}
-
     virtual _Program& get_program() {}
 
 	const demeID_t get_demeID() const { return _deme_id; }
@@ -320,7 +319,7 @@ public:
 	bool operator==(const scored_program& r) const;
 };
 
-class scored_combo_tree :  scored_program<combo::combo_tree>
+class scored_combo_tree :  scored_program<combo::combo_tree>,  public boost::equality_comparable<combo::combo_tree>
 {
 public:
 	scored_combo_tree(combo::combo_tree tr,
@@ -337,7 +336,7 @@ public:
 	combo::combo_tree& get_program() { return _tree; }
 };
 
-class scored_atomese :  scored_program<Handle>
+class scored_atomese :  scored_program<Handle>,  public boost::equality_comparable<Handle>
 {
 public:
 	scored_atomese(Handle h,
@@ -442,7 +441,7 @@ typedef std::unordered_set<scored_atomese,
                 // scored_atomese_equal> scored_atomese_hash_set;
                 scored_atomese_equal> scored_atomese_set;
 
-typedef std::unordered_set<scored_program,
+typedef std::unordered_set<scored_combo_tree,
                 scored_program_hash,
                 scored_program_equal> scored_program_set;
 
