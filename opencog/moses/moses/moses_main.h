@@ -109,7 +109,7 @@ struct metapop_printer
         // reasonable accuracy, else these tools fail.
         ss << std::setprecision(opencog::io_score_precision);
         if (output_ensemble) {
-            const scored_combo_tree_set& tree_set =
+            const scored_program_set& tree_set =
                 metapop.get_ensemble().get_ensemble();
             if (output_format::python == fmt or output_format::python3 == fmt) {
                 // Python boilerplate
@@ -120,9 +120,9 @@ struct metapop_printer
                 ss << "#score: " << metapop.best_score() << std::endl
                    << "def moses_eval(i):\n"
                    << "    sum = 0.0 \\\n";
-                for (const scored_combo_tree& sct : tree_set)
+                for (const scored_program& sct : tree_set)
                     ostream_combo_tree(ss << "      + " << sct.get_weight()
-                                       << " * ", sct.get_program(),
+                                       << " * ", boost::get<combo_tree>(sct.get_program()),
                                        output_with_labels? ilabels :
                                        std::vector<std::string>(),
                                        fmt) << "\\\n";
@@ -148,14 +148,14 @@ struct metapop_printer
             // results can seem out-of-order.
             scored_program_ptr_set tree_set;
             if (output_only_best) {
-                for (const scored_combo_tree& sct : metapop.best_candidates())
-                   tree_set.insert(new scored_combo_tree(sct));
+                for (const scored_program& sct : metapop.best_candidates())
+                   tree_set.insert(new scored_program(sct));
             } else {
                 tree_set = metapop.get_trees();
             }
 
             long cnt = 0;
-            for (const scored_combo_tree& sct : tree_set) {
+            for (const scored_program& sct : tree_set) {
                 if (result_count == cnt++) break;
                 if (output_format::python == fmt or output_format::python3 == fmt) {
                     // Python boilerplate
@@ -173,13 +173,13 @@ struct metapop_printer
                        << "def pdiv(a, b): return a / (b + 0.000001)\n"
                        << "def moses_eval(i):\n"
                        << "    return ";
-                    ostream_combo_tree(ss, sct.get_program(),
+                    ostream_combo_tree(ss, boost::get<combo_tree>(sct.get_program()),
                                        output_with_labels? ilabels :
                                        std::vector<std::string>(),
                                        fmt);
                     ss << std::endl;
                 } else {
-                    ostream_scored_combo_tree(ss, sct, output_score,
+                    ostream_scored_combo_tree(ss, boost::get<combo_tree>(sct.get_program()), output_score,
                                               output_cscore, output_demeID,
                                               output_bscore,
                                               output_with_labels? ilabels :

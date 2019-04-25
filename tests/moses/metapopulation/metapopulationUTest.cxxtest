@@ -75,7 +75,7 @@ public:
     {
         // a set of pbscored_combo_tree, the combo_tree themselves are
         // dummy (1, 2, ...) as only their bscore matter
-        scored_combo_tree_set bcs;
+        scored_program_set bcs;
         // 1
         behavioral_score pbs1 = {-1, 0, -1, 0};
         composite_score csc1(-2, -1, 0);
@@ -120,7 +120,7 @@ public:
     {
         // a set of scored_combo_tree, the combo_tree themselves are
         // dummy (1, 2, ...) as only their bscore matter
-        scored_combo_tree_set bcs1, bcs2;
+        scored_program_set bcs1, bcs2;
         // 4
         behavioral_score pbs4 = {0, -1, 0, -1};
         composite_score csc4(-2, -1, 0);
@@ -142,7 +142,7 @@ public:
 
         metapopulation::scored_combo_tree_set_pair res_p =
             _metapopulation.get_nondominated_disjoint(bcs1, bcs2);
-        scored_combo_tree_set res = set_union(res_p.first, res_p.second);
+        scored_program_set res = set_union(res_p.first, res_p.second);
         // 2 is dominated
         TS_ASSERT_EQUALS(res.size(), 2);             // 1 is removed
         TS_ASSERT_EQUALS(res.find(bct5), res.end()); // bct5

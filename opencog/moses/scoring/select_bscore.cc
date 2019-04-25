@@ -188,13 +188,13 @@ behavioral_score select_bscore::operator()(const combo_tree& tr) const
 }
 
 /// Scorer, suitable for use with boosting.
-behavioral_score select_bscore::operator()(const scored_combo_tree_set& ensemble) const
+behavioral_score select_bscore::operator()(const scored_program_set& ensemble) const
 {
     // Step 1: accumulate the weighted prediction of each tree in
     // the ensemble.
     behavioral_score hypoth (_size, 0.0);
-    for (const scored_combo_tree& sct: ensemble) {
-        const combo_tree& tr = sct.get_program();
+    for (const scored_program& sct: ensemble) {
+        const combo_tree& tr = boost::get<combo_tree>(sct.get_program());
         score_t trweight = sct.get_weight();
 
         interpreter_visitor iv(tr);

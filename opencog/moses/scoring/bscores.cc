@@ -89,7 +89,7 @@ behavioral_score logical_bscore::operator()(const combo_tree &tr) const
 /// a boolean value.  All of the trees in the ensmble get a weighted vote,
 /// that vote is totalled to get the prediction of the ensemble, and then
 /// compared to the desired output.
-behavioral_score logical_bscore::operator()(const scored_combo_tree_set &ensemble) const
+behavioral_score logical_bscore::operator()(const scored_program_set &ensemble) const
 {
 	// Step 1: accumulate the weighted prediction of each tree in
 	// the ensemble.
@@ -370,7 +370,7 @@ behavioral_score ctruth_table_bscore::operator()(const Handle &handle) const
 /// a boolean value.  All of the trees in the ensmble get a weighted vote,
 /// that vote is totalled to get the prediction of the ensemble, and then
 /// compared to the desired output.
-behavioral_score ctruth_table_bscore::operator()(const scored_combo_tree_set &ensemble) const
+behavioral_score ctruth_table_bscore::operator()(const scored_program_set &ensemble) const
 {
 	size_t sz = _wrk_ctable.size();
 

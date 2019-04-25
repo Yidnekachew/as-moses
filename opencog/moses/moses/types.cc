@@ -57,38 +57,54 @@ bool scored_program::operator==(const scored_program& r) const {
 		and get_composite_score() == r.get_composite_score();
 }
 
-size_t scored_combo_tree_hash::operator()(const scored_combo_tree& sct) const
-{
-	size_t hash = 0;
-	const combo::combo_tree& tr = sct.get_program();
+size_t scored_program_hash::operator()(const scored_program& sp) const {
+    size_t hash = 0;
+	const combo::combo_tree& tr = boost::get<combo::combo_tree>(sp.get_program());
 	for (combo::vertex vtx : tr) {
 		boost::hash_combine(hash, combo::hash_value(vtx));
 	}
 	return hash;
 }
 
-size_t scored_atomese_hash::operator()(const scored_atomese& sct) const
-{
+//size_t scored_combo_tree_hash::operator()(const scored_combo_tree& sct) const
+//{
 //	size_t hash = 0;
-//	const Handle
-//	const combo::combo_tree& tr = sct.get_program();
+//	const combo::combo_tree& tr = boost::get<combo::combo_tree>(sct.get_program());
 //	for (combo::vertex vtx : tr) {
 //		boost::hash_combine(hash, combo::hash_value(vtx));
 //	}
 //	return hash;
-}
+//}
+//
+//size_t scored_atomese_hash::operator()(const scored_atomese& sct) const
+//{
+////	size_t hash = 0;
+////	const Handle
+////	const combo::combo_tree& tr = sct.get_program();
+////	for (combo::vertex vtx : tr) {
+////		boost::hash_combine(hash, combo::hash_value(vtx));
+////	}
+////	return hash;
+//}
+//
+//bool scored_combo_tree_equal::operator()(const scored_combo_tree& tr1,
+//                                         const scored_combo_tree& tr2) const
+//{
+//	return tr1.get_program() == tr2.get_program();
+//}
+//
+//bool scored_atomese_equal::operator()(const scored_atomese& a1,
+//									  const scored_atomese& a2) const
+//{
+//	// not quite sure if the logic is right?
+//	return a1.get_program() == a2.get_program();
+//}
 
-bool scored_combo_tree_equal::operator()(const scored_combo_tree& tr1,
-                                         const scored_combo_tree& tr2) const
-{
-	return tr1.get_program() == tr2.get_program();
-}
-
-bool scored_atomese_equal::operator()(const scored_atomese& a1,
-									  const scored_atomese& a2) const
+bool scored_program_equal::operator()(const scored_program& a1,
+									  const scored_program& a2) const
 {
 	// not quite sure if the logic is right?
-	return a1.get_handle() == a2.get_handle();
+	return a1.get_program() == a2.get_program();
 }
 
 // See header file for description.
@@ -191,7 +207,7 @@ std::ostream& ostream_behavioral_score(std::ostream& out,
 }
 
 std::ostream& ostream_scored_combo_tree(std::ostream& out,
-                                        const scored_combo_tree& sct,
+                                        const scored_program& sct,
                                         bool output_score,
                                         bool output_cscore,
                                         bool output_demeID,
@@ -201,7 +217,7 @@ std::ostream& ostream_scored_combo_tree(std::ostream& out,
 {
 	if (output_score)
 		out << sct.get_score() << " ";
-	ostream_combo_tree(out, sct.get_program(), labels, fmt);
+	ostream_combo_tree(out, boost::get<combo::combo_tree>(sct.get_program()), labels, fmt);
 
 	// Is this really used?
 	static const bool output_weight = false;

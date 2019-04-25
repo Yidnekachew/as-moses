@@ -131,7 +131,7 @@ void metapopulation::rescore()
     bscore_base& bscorer = _cscorer.get_bscorer();
 #define SERIAL_RESCORING 1
 #if SERIAL_RESCORING
-    for (scored_combo_tree& sct : _scored_trees) {
+    for (scored_program& sct : _scored_trees) {
         score_t new_score = bscorer.sum_bscore(sct.get_bscore());
         sct.get_composite_score().set_score(new_score);
     }
@@ -170,7 +170,7 @@ void metapopulation::merge_candidates(scored_program_set& candidates)
     if (not _params.discard_dominated) {
         logger().debug("Insert all candidates in the metapopulation");
         for (const auto& cnd : candidates)
-            _scored_trees.insert(new scored_combo_tree(cnd));
+            _scored_trees.insert(new scored_program(cnd));
     } else {
         logger().debug("Insert non-dominated candidates in the metapopulation");
         unsigned old_size = size();
@@ -279,7 +279,7 @@ bool metapopulation::merge_demes(std::vector<std::vector<deme_t>>& all_demes,
                            compute_bscore);
         candidates = new_pot;
 #else
-        scored_combo_tree_set new_pot;
+        scored_program_set new_pot;
         for (const scored_combo_tree& cand : pot_candidates)
         {
             behavioral_score bs(_cscorer.get_bscore(cand.get_tree()));
@@ -467,7 +467,7 @@ scored_program_set metapopulation::get_new_candidates(const scored_program_set& 
     scored_program_ptr_set::const_iterator cbeg = _scored_trees.begin();
     scored_program_ptr_set::const_iterator cend = _scored_trees.end();
     auto insert_new_candidate = [&](const scored_program& cnd) {
-        const auto& prog = cnd.get_program();
+        const _Program& prog = cnd.get_program();
         scored_program_ptr_set::const_iterator fcnd =
             std::find_if(cbeg, cend,
                 [&](const scored_program& v) { return prog == v.get_program(); });
@@ -480,7 +480,7 @@ scored_program_set metapopulation::get_new_candidates(const scored_program_set& 
     return res;
 
 #else
-    scored_combo_tree_set res;
+    scored_program_set res;
     for (const auto& cnd : mcs) {
         const combo_tree& tr = cnd.get_tree();
         scored_program_ptr_set::const_iterator fcnd =

@@ -226,7 +226,7 @@ bool is_running(const proc_map::value_type& pmv)
     return is_being_written(get_tmp(pmv), get_pid(pmv));
 }
 
-void parse_result(istream& in, scored_combo_tree_set& candidates, int& evals)
+void parse_result(istream& in, scored_program_set& candidates, int& evals)
 {
     in.seekg(0);
     while (!in.eof()) {
@@ -279,7 +279,7 @@ void parse_result(istream& in, scored_combo_tree_set& candidates, int& evals)
 };
 
 void parse_result(const proc_map::value_type& pmv, 
-                  scored_combo_tree_set& candidates, int& evals)
+                  scored_program_set& candidates, int& evals)
 {
     FILE* fp = get_file(pmv);
     // build istream from fp
@@ -420,7 +420,7 @@ void distributed_moses(metapopulation& mp,
                 found_one = true;
 
                 // parse the result
-                scored_combo_tree_set candidates;
+                scored_program_set candidates;
                 int evals;
 
                 logger().info("Parsing results from PID %d file %s",

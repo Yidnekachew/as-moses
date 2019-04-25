@@ -81,7 +81,7 @@ behavioral_score bscore_base::operator()(const Handle &) const
 }
 
 behavioral_score
-bscore_base::operator()(const scored_combo_tree_set &ensemble) const
+bscore_base::operator()(const scored_program_set &ensemble) const
 {
 	OC_ASSERT(false, "Ensemble scoring not implemented for bscorer %s",
 	          typeid(*this).name());
@@ -104,7 +104,7 @@ bscore_base::worst_possible_bscore() const
  * I dunno .. something.  Unclear how the theory should even work for this
  * case.
  */
-complexity_t bscore_base::get_complexity(const scored_combo_tree_set &ensemble) const
+complexity_t bscore_base::get_complexity(const scored_program_set &ensemble) const
 {
 	if (ensemble.empty()) return 0.0;
 

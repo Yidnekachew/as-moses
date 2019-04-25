@@ -114,12 +114,12 @@ void metapopulation::remove_dominated(scored_program_set& bcs, unsigned jobs)
 scored_program_set
 metapopulation::get_nondominated_iter(const scored_program_set& bcs)
 {
-    typedef std::list<scored_combo_tree> scored_combo_tree_list;
-    typedef scored_combo_tree_list::iterator scored_combo_tree_list_it;
-    scored_combo_tree_list mcl(bcs.begin(), bcs.end());
+    typedef std::list<scored_program> scored_program_list;
+    typedef scored_program_list::iterator scored_program_list_it;
+    scored_program_list mcl(bcs.begin(), bcs.end());
     // remove all dominated candidates from the list
-    for (scored_combo_tree_list_it it1 = mcl.begin(); it1 != mcl.end();) {
-        scored_combo_tree_list_it it2 = it1;
+    for (scored_program_list_it it1 = mcl.begin(); it1 != mcl.end();) {
+        scored_program_list_it it2 = it1;
         ++it2;
         if (it2 != mcl.end())
             for (; it2 != mcl.end();) {

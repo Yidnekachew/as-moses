@@ -136,7 +136,7 @@ void partial_solver::solve()
 /// predicates are "good enough".  If we find one that is, then trim
 /// the scoring tables, and return (so as to run moses on the smaller
 /// problem).
-bool partial_solver::eval_candidates(const scored_combo_tree_set& cands)
+bool partial_solver::eval_candidates(const scored_program_set& cands)
 {
     logger().info() << "well-enough received " << cands.size() << " candidates";
     _most_good = 0;

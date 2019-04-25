@@ -65,7 +65,7 @@ public:
 
     void add_candidates(scored_program_set&);
 
-    const scored_combo_tree_set& get_ensemble() const {
+    const scored_program_set& get_ensemble() const {
         return _scored_trees;
     }
 
@@ -80,11 +80,11 @@ private:
     double _bias;
     std::vector<double> _row_bias;
 
-    scored_combo_tree_set _scored_trees;
+    scored_program_set _scored_trees;
     mutable combo_tree _weighted_tree;
 
-    void add_adaboost(scored_combo_tree_set&);
-    void add_expert(scored_combo_tree_set&);
+    void add_adaboost(scored_program_set&);
+    void add_expert(scored_program_set&);
 
     const combo::combo_tree& get_adaboost_tree() const;
     const combo::combo_tree& get_exact_tree() const;

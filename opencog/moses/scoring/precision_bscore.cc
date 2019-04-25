@@ -365,7 +365,7 @@ behavioral_score precision_bscore::operator()(const combo_tree& tr) const
     return bs;
 }
 
-behavioral_score precision_bscore::operator()(const scored_combo_tree_set& ensemble) const
+behavioral_score precision_bscore::operator()(const scored_program_set& ensemble) const
 {
     // The ensemble score must not use weights, but must be give the
     // result that the ensemble would give on regular data.  Thus,
@@ -388,7 +388,7 @@ behavioral_score precision_bscore::operator()(const scored_combo_tree_set& ensem
 /// scorer, suitable for use with boosting, where the members of the
 /// boosted ensemble are always correct in their selections. That is,
 /// they are "exact" scorers.
-behavioral_score precision_bscore::exact_selection(const scored_combo_tree_set& ensemble) const
+behavioral_score precision_bscore::exact_selection(const scored_program_set& ensemble) const
 {
     // For large tables, it is much more efficient to convert the
     // ensemble into a single tree, and just iterate on that, instead
@@ -450,7 +450,7 @@ behavioral_score precision_bscore::exact_selection(const scored_combo_tree_set& 
 /// requiring the ensemble to cast a minimum vote, before a row is
 /// truely considered to be selected.  The minimum vote is called the
 /// "bias" in the code below.
-behavioral_score precision_bscore::bias_selection(const scored_combo_tree_set& ensemble) const
+behavioral_score precision_bscore::bias_selection(const scored_program_set& ensemble) const
 {
     // Step 1: If any tree in the ensemble picks a row, that row is
     // picked with appropriate weight.

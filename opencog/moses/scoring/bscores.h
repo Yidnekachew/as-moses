@@ -71,7 +71,7 @@ struct logical_bscore : public bscore_base
 
 	behavioral_score operator()(const combo_tree &) const;
 
-	behavioral_score operator()(const scored_combo_tree_set &) const;
+	behavioral_score operator()(const scored_program_set &) const;
 
 	behavioral_score operator()(const Handle &) const;
 
@@ -387,7 +387,7 @@ struct ctruth_table_bscore : public bscore_ctable_base
 
 	behavioral_score operator()(const Handle &handle) const;
 
-	behavioral_score operator()(const scored_combo_tree_set &) const;
+	behavioral_score operator()(const scored_program_set &) const;
 
 	// Return the best possible bscore. Used as one of the
 	// termination conditions (when the best bscore is reached).

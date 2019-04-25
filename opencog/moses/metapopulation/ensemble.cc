@@ -88,14 +88,14 @@ void ensemble::add_candidates(scored_program_set& cands)
 /**
  * Implement a boosted ensemble, using the classic AdaBoost algo.
  */
-void ensemble::add_adaboost(scored_combo_tree_set& cands)
+void ensemble::add_adaboost(scored_program_set& cands)
 {
 	int promoted = 0;
 
 	while (true) {
 		// Find the element (the combo tree) with the least error. This is
 		// the element with the highest score.
-		scored_combo_tree_set::iterator best_p =
+		scored_program_set::iterator best_p =
 			std::min_element(cands.begin(), cands.end(),
 				[](const scored_combo_tree& a, const scored_combo_tree& b) {
 					return a.get_score() > b.get_score(); });
@@ -176,7 +176,7 @@ void ensemble::add_adaboost(scored_combo_tree_set& cands)
  *
  * At most, _params.num_to_promote are added.
  */
-void ensemble::add_expert(scored_combo_tree_set& cands)
+void ensemble::add_expert(scored_program_set& cands)
 {
 	int promoted = 0;
 	int num = 0;
@@ -209,7 +209,7 @@ void ensemble::add_expert(scored_combo_tree_set& cands)
 
 			// Trick the scorer into using the flat scorer.  Do this by
 			// sticking the single tree into a tree set.
-			scored_combo_tree_set treeset;
+			scored_program_set treeset;
          treeset.insert(sct);
 			behavioral_score bs(_bscorer.operator()(treeset));
 			size_t bslen = _bscorer.size();

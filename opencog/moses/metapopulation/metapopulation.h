@@ -153,7 +153,7 @@ public:
     const scored_program_set& best_candidates() const;
     const ensemble& get_ensemble() const { return _ensemble; }
     composite_score best_composite_score() const;
-    const combo_tree& best_tree() const;
+    const _Program& best_tree() const;
 
     /**
      * Return the best model score (either the score of the
@@ -418,10 +418,10 @@ private:
     typedef std::vector<const scored_combo_tree*> scored_combo_tree_ptr_vec;
     typedef std::vector<const scored_program*> scored_program_ptr_vec;
     typedef scored_program_ptr_vec::iterator scored_program_ptr_vec_it;
+//    typedef scored_program_ptr_vec::const_iterator scored_program_ptr_vec_cit;
     typedef scored_program_ptr_vec::const_iterator scored_program_ptr_vec_cit;
-    typedef scored_program_ptr_vec::const_iterator scored_program_ptr_vec_cit;
-    typedef std::pair<scored_program_ptr_vec,
-                      scored_program_ptr_vec> scored_program_ptr_vec_pair;    
+//    typedef std::pair<scored_program_ptr_vec,
+//                      scored_program_ptr_vec> scored_program_ptr_vec_pair;
     typedef std::pair<scored_program_ptr_vec,
             scored_program_ptr_vec> scored_program_ptr_vec_pair;
 
@@ -577,15 +577,15 @@ protected:
     /// _visited_exemplars contains the exemplars of demes that have
     ///  been previously expanded. The count indicated the number of
     /// times that they've been expanded.
-    typedef std::unordered_map<scored_combo_tree, unsigned,
-                               scored_combo_tree_hash,
-                               scored_combo_tree_equal> scored_tree_counter;
+    typedef std::unordered_map<scored_program, unsigned,
+                               scored_program_hash,
+                               scored_program_equal> scored_program_counter;
 
-    scored_tree_counter _visited_exemplars;
+    scored_program_counter _visited_exemplars;
 
     /// Return true iff the tree has already been visited; that is, if
     /// its in _visited_exemplars
-    bool has_been_visited(const scored_combo_tree&) const;
+    bool has_been_visited(const scored_program&) const;
 
     // lock to enable thread-safe deme merging.
     std::mutex _merge_mutex;

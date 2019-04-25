@@ -91,10 +91,10 @@ bool is_running(const proc_map::value_type& pmv);
 /**
  * read the istream, add the candidates, fill max_evals
  */
-void parse_result(std::istream& in, scored_combo_tree_set& candidates, int& evals);
+void parse_result(std::istream& in, scored_program_set& candidates, int& evals);
 // like above but uses a proc_map::value_type instead of istream
 void parse_result(const proc_map::value_type& pmv, 
-                  scored_combo_tree_set& candidates, int& evals);
+                  scored_program_set& candidates, int& evals);
 
 host_proc_map init(const jobs_t& jobs);
 // remove it from proc_map and return the iterator pointing to the

@@ -120,7 +120,7 @@ struct precision_bscore : public bscore_ctable_time_dispersion
                      bool disable_debug_log = false);
 
     behavioral_score operator()(const combo_tree& tr) const;
-    behavioral_score operator()(const scored_combo_tree_set&) const;
+    behavioral_score operator()(const scored_program_set&) const;
     score_t get_error(const combo_tree&) const;
 
     // Return the best possible bscore. Used as one of the
@@ -191,8 +191,8 @@ private:
     // associated to an input vector
     score_t sum_outputs(const CTable::counter_t&) const;
 
-    behavioral_score exact_selection(const scored_combo_tree_set&) const;
-    behavioral_score bias_selection(const scored_combo_tree_set&) const;
+    behavioral_score exact_selection(const scored_program_set&) const;
+    behavioral_score bias_selection(const scored_program_set&) const;
 };
 
 /**

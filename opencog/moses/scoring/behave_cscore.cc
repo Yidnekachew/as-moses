@@ -106,7 +106,7 @@ composite_score behave_cscore::get_cscore_nocache(const combo_tree &tr)
 	return composite_score(res, cpxy, cpxy * cpxy_coef, 0.0);
 }
 
-composite_score behave_cscore::get_cscore(const scored_combo_tree_set &ensemble)
+composite_score behave_cscore::get_cscore(const scored_program_set &ensemble)
 {
 	behavioral_score bs(get_bscore(ensemble));
 

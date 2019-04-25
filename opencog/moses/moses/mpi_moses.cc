@@ -241,7 +241,7 @@ int moses_mpi_comm::probe_for_deme()
 /// in an atomic, unfragmented way, from the first source that sent
 /// one to us.
 void moses_mpi_comm::recv_deme(int source,
-                               scored_combo_tree_set& cands,
+                               scored_program_set& cands,
                                int& n_evals,
                                const demeID_t& demeID)
 {
@@ -429,7 +429,7 @@ void mpi_moses(metapopulation& mp,
            && (pa.max_gens != stats.n_expansions)
            && (mp.best_score() < pa.max_score))
     {
-        scored_combo_tree_set::const_iterator exemplar = mp.select_exemplar();
+        scored_program_set::const_iterator exemplar = mp.select_exemplar();
         if (exemplar == mp.end()) {
             if (wrkpool.available() == tot_workers) {
                 logger().warn(
@@ -462,7 +462,7 @@ void mpi_moses(metapopulation& mp,
                 mompi.dispatch_deme(worker.rank, extree, max_evals);
 
                 int n_evals = 0;
-                scored_combo_tree_set candidates;
+                scored_program_set candidates;
                 mompi.recv_deme(worker.rank, candidates, n_evals);
 cout<<"duuude master "<<getpid() <<" from="<<worker.rank << " got evals="<<n_evals <<" got cands="<<candidates.size()<<endl;
                 wrkpool.give_back(worker);
@@ -602,7 +602,7 @@ void mpi_moses(metapopulation& mp,
         }
 
         int n_evals = 0;
-        scored_combo_tree_set candidates;
+        scored_program_set candidates;
         stats.n_expansions ++;
 
         // XXX TODO instead of overwritting the demeID it should be

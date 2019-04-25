@@ -58,13 +58,13 @@ public:
 
 	behavioral_score get_bscore(const combo_tree &) const;
 
-	behavioral_score get_bscore(const scored_combo_tree_set &) const;
+	behavioral_score get_bscore(const scored_program_set &) const;
 
 	behavioral_score get_bscore(const Handle &) const;
 
 	composite_score get_cscore(const combo_tree &);
 
-	composite_score get_cscore(const scored_combo_tree_set &);
+	composite_score get_cscore(const scored_program_set &);
 
 	composite_score get_cscore(const Handle &);
 

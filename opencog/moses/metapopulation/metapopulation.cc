@@ -114,7 +114,7 @@ void metapopulation::init(const combo_tree_seq& exemplars)
         // store it in case diversity preservation is used
         behavioral_score bs(_cscorer.get_bscore(base));
 
-        scored_combo_tree sct(base, demeID_t(), csc, bs);
+        scored_program sct(base, demeID_t(), csc, bs);
 
         candidates.insert(sct);
     }
@@ -141,7 +141,7 @@ void metapopulation::init(const HandleSeq& exemplars)
 // -------------------------------------------------------------------
 // Exemplar selection-related code
 
-bool metapopulation::has_been_visited(const scored_combo_tree& tr) const
+bool metapopulation::has_been_visited(const scored_program& tr) const
 {
     return _visited_exemplars.find(tr) != _visited_exemplars.cend();
 }
@@ -193,7 +193,7 @@ scored_program_ptr_set::const_iterator metapopulation::select_exemplar()
 
     // The exemplars are stored in order from best score to worst;
     // the iterator follows this order.
-    for (const scored_combo_tree& bsct : *this) {
+    for (const scored_program& bsct : *this) {
 
         score_t sc = bsct.get_penalized_score();
 
@@ -290,7 +290,7 @@ const scored_program_set& metapopulation::best_candidates() const
 /**
  * Return the best combo tree (shortest best candidate).
  */
-const combo_tree& metapopulation::best_tree() const
+const _Program& metapopulation::best_tree() const
 {
     if (_params.do_boosting) {
         return _ensemble.get_weighted_tree();
@@ -301,7 +301,7 @@ const combo_tree& metapopulation::best_tree() const
 std::ostream& metapopulation::ostream_metapop(std::ostream& out, int maxcnt) const
 {
     int cnt = 0;
-    for (const scored_combo_tree& sct : _scored_trees) {
+    for (const scored_program& sct : _scored_trees) {
         if (maxcnt < ++cnt) break;
         out << sct;
     }

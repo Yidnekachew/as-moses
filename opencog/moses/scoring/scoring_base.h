@@ -73,7 +73,7 @@ struct bscore_base
 	virtual behavioral_score operator()(const Handle &) const;
 
 	/// Return the behavioral score for the ensemble
-	virtual behavioral_score operator()(const scored_combo_tree_set &) const;
+	virtual behavioral_score operator()(const scored_program_set &) const;
 
 	/// Return the size (length) of the behavioral_score that operator()
 	/// above would return.
@@ -221,7 +221,7 @@ struct bscore_base
 		return tree_complexity(tr);
 	}
 
-	virtual complexity_t get_complexity(const scored_combo_tree_set &) const;
+	virtual complexity_t get_complexity(const scored_program_set &) const;
 
 	virtual complexity_t get_complexity(const Handle &handle) const
 	{
