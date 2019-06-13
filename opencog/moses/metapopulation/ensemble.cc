@@ -29,6 +29,9 @@
 #include  <opencog/util/oc_assert.h>
 #include  <opencog/reduct/reduct/reduct.h>
 #include  <opencog/moses/moses/complexity.h>
+#include <opencog/atomese/interpreter/Interpreter.h>
+#include <opencog/utils/value_key.h>
+#include <opencog/atomese/interpreter/logical_interpreter.h>
 #include "ensemble.h"
 
 namespace opencog {
@@ -83,6 +86,15 @@ void ensemble::add_candidates(scored_combo_tree_set& cands)
 		return;
 	}
 	add_adaboost(cands);
+}
+
+void ensemble::add_candidates(scored_atomese_set& cands)
+{
+    if (_params.experts) {
+        add_expert_atomese(cands);
+        return;
+    }
+    add_adaboost_atomese(cands);
 }
 
 /**
@@ -159,6 +171,79 @@ void ensemble::add_adaboost(scored_combo_tree_set& cands)
 		if (_params.num_to_promote <= promoted) break;
 		if (cands.empty()) break;
 	}
+}
+
+void ensemble::add_adaboost_atomese(scored_atomese_set& cands)
+{
+    int promoted = 0;
+
+    while (true) {
+        // Find the element (the combo tree) with the least error. This is
+        // the element with the highest score.
+        scored_atomese_set::iterator best_p =
+                std::min_element(cands.begin(), cands.end(),
+                                 [](const scored_atomese& a, const scored_atomese& b) {
+                                     return a.get_score() > b.get_score(); });
+
+        logger().info() << "Boosting: candidate score=" << best_p->get_score();
+        double err = _bscorer.get_error(best_p->get_bscore());
+        OC_ASSERT(0.0 <= err and err < 1.0, "boosting score out of range; got %g", err);
+
+        // This condition indicates "perfect score". It does not typically
+        // happen, but if it does, then we have no need for all the boosting
+        // done up to this point.  Thus, we erase the entire ensemble; its
+        // now superfluous, and replace it by the single best answer.
+        if (err < _tolerance) {
+            logger().info() << "Boosting: perfect score found: " << &best_p;
+
+            // Wipe out the ensemble.
+            _scored_trees.clear();
+            scored_atomese best(*best_p);
+            best.set_weight(1.0);
+            _scored_atomeses.insert(best);
+
+            // Clear out the scorer weights, to avoid down-stream confusion.
+            _bscorer.reset_weights();
+
+            return;
+        }
+
+        // Any score worse than half is terrible. Half gives a weight of zero.
+        if (0.5 <= err) {
+            logger().info() << "Boosting: no improvement, ensemble not expanded";
+            break;
+        }
+
+        // Compute alpha
+        double alpha = 0.5 * log ((1.0 - err) / err);
+        double expalpha = exp(alpha);
+        double rcpalpha = 1.0 / expalpha;
+        logger().info() << "Boosting: add to ensemble " << *best_p  << std::endl
+                        << "With err=" << err << " alpha=" << alpha <<" exp(alpha)=" << expalpha;
+
+        // Set the weight for the tree, and stick it in the ensemble
+        scored_atomese best = *best_p;
+        best.set_weight(alpha);
+        _scored_atomeses.insert(best);
+
+        // Recompute the weights
+        const behavioral_score& bs = best_p->get_bscore();
+        size_t bslen = _bscorer.size();
+        std::vector<double> weights(bslen);
+        for (size_t i=0; i<bslen; i++)
+        {
+            weights[i] = is_correct(bs[i]) ? rcpalpha : expalpha;
+        }
+        _bscorer.update_weights(weights);
+
+        // Remove from the set of candidates.
+        cands.erase(best_p);
+
+        // Are we done yet?
+        promoted ++;
+        if (_params.num_to_promote <= promoted) break;
+        if (cands.empty()) break;
+    }
 }
 
 /**
@@ -295,6 +380,125 @@ void ensemble::add_expert(scored_combo_tree_set& cands)
 	}
 }
 
+void ensemble::add_expert_atomese(scored_atomese_set& cands)
+{
+    int promoted = 0;
+    int num = 0;
+    for (const scored_atomese& sa : cands) {
+        num++;
+        // Add all elements that have a perfect score, or at least,
+        // a good-enough score.
+        double err = _bscorer.get_error(sa.get_handle());
+
+        OC_ASSERT(0.0 <= err+_tolerance and err-_tolerance <= 1.0,
+                  "boosting score out of range; got %g", err);
+
+        // Set the weight for the tree, and stick it in the ensemble
+        if (_params.exact_experts) {
+            // This condition indicates "perfect score". This is the only type
+            // of tree that we accept into the ensemble.
+            if (_tolerance < err) {
+                logger().debug() << "Exact expert " << num
+                                 << " not good enough, err=" << err
+                                 << " score=" << sa.get_score();
+                continue;
+            }
+
+            logger().info() << "Exact expert " << num << " add to ensemble: " << sa;
+            _scored_atomeses.insert(sa);
+
+            // Increase the importance of all remaining, unselected rows.
+            double expalpha = _params.expalpha; // Add-hoc boosting value ...
+            double rcpalpha = 1.0 / expalpha;
+
+            // Trick the scorer into using the flat scorer.  Do this by
+            // sticking the single tree into a tree set.
+            scored_atomese_set atomeseset;
+            atomeseset.insert(sa);
+            behavioral_score bs(_bscorer.operator()(atomeseset));
+            size_t bslen = _bscorer.size();
+            std::vector<double> weights(bslen);
+            for (size_t i=0; i<bslen; i++)
+            {
+                // Again, here we explicitly assume the pre scorer: A row is
+                // correctly selected if its score is strictly positive.
+                // The weights of positive and selected rows must decrease.
+                // (because we would like to not select them again).
+                // For the weights of unselected rows, positive or negative,
+                // well hey, we have a choice: we could increase them, or we
+                // could leave them alone. We should leave them alone, as
+                // otherwise, we are increasing the weight on rows that had
+                // been previously selected, but aren't now.  We can do this
+                // here, or in the pre scorer ... probably best to do it in
+                // the pre scorer.
+                weights[i] = (0.0 < bs[i]) ? rcpalpha : expalpha;
+            }
+            _bscorer.update_weights(weights);
+
+        } else {
+            // if we are here, its the in-exact experts code.  XXX currently broken ...
+            // Any score worse than half is terrible. Half gives a weight of zero.
+            // More than half gives negative weights, which wreaks things.
+            if (0.5 <= err) {
+                logger().debug() <<
+                                 "Expert: terrible precision, ensemble not expanded: " << err;
+                continue;
+            }
+            // AdaBoost-style alpha; except we allow perfect scorers.
+            if (err < _tolerance) err = _tolerance;
+            double alpha = 0.5 * log ((1.0 - err) / err);
+            double expalpha = exp(alpha);
+            logger().info() << "Expert: add to ensemble; err=" << err
+                            << " alpha=" << alpha <<" exp(alpha)=" << expalpha
+                            << std::endl << sa;
+
+            scored_atomese kopy(sa);
+            kopy.set_weight(alpha);
+            _scored_atomeses.insert(kopy);
+
+            // Adjust the bias, if needed.
+            const behavioral_score& bs = sa.get_bscore();
+            size_t bslen = _bscorer.size();
+
+            // XXX the logic below is probably wrong.
+            OC_ASSERT(false, "this doesn't work right now.");
+            // Now, look to see where this scorer was wrong, and bump the
+            // bias for that.  Here, we make the defacto assumption that
+            // the scorer is the "pre" scorer, and so the bs ranges from
+            // -0.5 to +0.5, with zero denoting "row not selected by tree",
+            // a positive score denoting "row correctly selected by tree",
+            // and a negative score denoting "row wrongly selected by tree".
+            // The scores differ from +/-0.5 only if the rows are degenerate.
+            // Thus, the ensemble will incorrectly pick a row if it picks
+            // the row, and the weight isn't at least _bias.  (Keep in mind
+            // that alpha is the weight of the current tree.)
+            for (size_t i=0; i<bslen; i++) {
+                if (bs[i] >= 0.0) continue;
+                // -2.0 to cancel the -0.5 for bad row.
+                _row_bias[i] += -2.0 * alpha * bs[i];
+                if (_bias < _row_bias[i]) _bias = _row_bias[i];
+            }
+            logger().info() << "Experts: bias is now: " << _bias;
+
+            // Increase the importance of all remaining, unselected rows.
+            double rcpalpha = 1.0 / expalpha;
+            std::vector<double> weights(bslen);
+            for (size_t i=0; i<bslen; i++)
+            {
+                // Again, here we explicitly assume the pre scorer: A row is
+                // correctly selected if its score is strictly positive.
+                // The weights of unselected rows must increase.
+                weights[i] = (0.0 < bs[i]) ? rcpalpha : expalpha;
+            }
+            _bscorer.update_weights(weights);
+        }
+
+        // Are we done yet?
+        promoted ++;
+        if (_params.num_to_promote <= promoted) break;
+    }
+}
+
 /// Return the ensemble contents as a single, large tree.
 ///
 const combo::combo_tree& ensemble::get_weighted_tree() const
@@ -308,6 +512,19 @@ const combo::combo_tree& ensemble::get_weighted_tree() const
 		get_adaboost_tree();
 	}
 	return _weighted_tree;
+}
+
+const Handle& ensemble::get_weighted_atomese() const
+{
+    if (_params.experts) {
+        if (_params.exact_experts)
+            get_exact_atomese();
+        else
+            get_expert_atomese();
+    } else {
+        get_adaboost_atomese();
+    }
+    return _weighted_atomese;
 }
 
 /// Return the ensemble contents as a single, large weighted tree.
@@ -352,6 +569,39 @@ const combo::combo_tree& ensemble::get_adaboost_tree() const
 	return _weighted_tree;
 }
 
+const Handle& ensemble::get_adaboost_atomese() const
+{
+	if (1 == _scored_atomeses.size()) {
+		_weighted_atomese = _scored_atomeses.begin()->get_handle();
+		return _weighted_atomese;
+	}
+
+	// score must be bettter than the bias.
+	Handle bias = createNode(NUMBER_NODE, std::to_string(0));
+	HandleSeq seq;
+
+	for (const scored_atomese& sct : _scored_atomeses)
+	{
+		Handle weight, impulse, times, minus;
+
+		weight = createNode(NUMBER_NODE, std::to_string(sct.get_weight()));
+
+		impulse = calc_impulse(sct.get_handle());
+
+		// minus is (handle - 0.5) so that minus is equal to +0.5 if
+		// handle is true, else it is equal to -0.5
+		minus = createLink(PLUS_LINK, createNode(NUMBER_NODE, std::to_string(-0.5)), impulse);
+
+		// times is (weight * (handle - 0.5))
+		times = createLink(TIMES_LINK, weight, minus);
+		seq.push_back(times);
+	}
+
+	Handle sum = createLink(seq, PLUS_LINK);
+	_weighted_atomese = createLink(GREATER_THAN_LINK, sum, bias);
+	return _weighted_atomese;
+}
+
 /// Return the ensemble contents as a single, large tree.
 ///
 /// Returns the combo tree expressing
@@ -378,6 +628,22 @@ const combo::combo_tree& ensemble::get_exact_tree() const
 	// std::cout << "ater reduct " << tree_complexity(_weighted_tree) << std::endl;
 
 	return _weighted_tree;
+}
+
+const Handle& ensemble::get_exact_atomese() const
+{
+    if (1 == _scored_atomeses.size()) {
+        _weighted_atomese = _scored_atomeses.begin()->get_handle();
+        return _weighted_atomese;
+    }
+
+    HandleSeq seq;
+    for (const scored_atomese& sct : _scored_atomeses)
+       seq.push_back(sct.get_handle());
+
+	_weighted_atomese = createLink(seq, OR_LINK);
+
+    return _weighted_atomese;
 }
 
 /// Return the ensemble contents as a single, large tree.
@@ -422,6 +688,48 @@ const combo::combo_tree& ensemble::get_expert_tree() const
 }
 
 /**
+ * Creates an all inclusive handle encapsulated in GreaterThanLink.
+ *
+ * (GreaterThanLink
+ * 		(PlusLink
+ * 			(TimesLink i
+ * 				(NumberNode "$weight_i")
+ * 				(NumberNode "$impulse_i"))
+ * 			..
+ * 		)
+ * 		(NumberNode "$bias"))
+ * @return
+ */
+const Handle& ensemble::get_expert_atomese() const
+{
+	if (1 == _scored_atomeses.size()) {
+		_weighted_atomese = _scored_atomeses.begin()->get_handle();
+		return _weighted_atomese;
+	}
+
+	// score must be better than the bias.
+	Handle bias = createNode(NUMBER_NODE, std::to_string(-_bias * _params.bias_scale));
+	HandleSeq seq;
+
+	for (const scored_atomese& sct : _scored_atomeses)
+	{
+		Handle weight, impulse, times;
+
+		weight = createNode(NUMBER_NODE, std::to_string(sct.get_weight()));
+
+		impulse = calc_impulse(sct.get_handle());
+
+		// times is (weight * tree)
+		times = createLink(TIMES_LINK, weight, impulse);
+		seq.push_back(times);
+	}
+
+	Handle sum = createLink(seq, PLUS_LINK);
+	_weighted_atomese = createLink(GREATER_THAN_LINK, sum, bias);
+	return _weighted_atomese;
+}
+
+/**
  * Return the plain, unweighted, "flat" score for the ensemble as a
  * whole.  This is the score that the ensemble would get when used
  * for prediction; by contrast, the weighted score only applies for
@@ -431,6 +739,18 @@ score_t ensemble::flat_score() const
 {
 	behavioral_score bs(_bscorer(_scored_trees));
 	return boost::accumulate(bs, 0.0);
+}
+
+// ? how do we handle for contin problems
+Handle ensemble::calc_impulse(Handle h) const
+{
+	atomese::Interpreter interpreter(value_key);
+	ValuePtr _result = interpreter(h);
+
+	if(atomese::logical_compare(LinkValueCast(createLink(TRUE_LINK)), LinkValueCast(_result)))
+		return createNode(NUMBER_NODE, "1");
+	else
+		return createNode(NUMBER_NODE, "0");
 }
 
 

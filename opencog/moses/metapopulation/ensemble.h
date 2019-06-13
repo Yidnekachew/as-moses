@@ -79,6 +79,9 @@ public:
         return _scored_atomeses;
     }
 
+    // impulse is +1.0 if handle is true, else it is equal to 0.0
+    Handle calc_impulse(Handle h)const;
+
     const Handle& get_weighted_atomese() const;
 
 private:
