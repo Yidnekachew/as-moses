@@ -423,7 +423,10 @@ const combo_tree& metapopulation::best_tree() const
  */
 const Handle& metapopulation::best_atomese() const
 {
-	return best_atomese_candidates().begin()->get_handle();
+    if(_params.do_boosting) {
+        return _ensemble.get_weighted_atomese();
+    }
+    return best_atomese_candidates().begin()->get_handle();
 }
 
 std::ostream& metapopulation::ostream_metapop(std::ostream& out, int maxcnt) const

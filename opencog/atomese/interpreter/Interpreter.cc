@@ -191,6 +191,13 @@ ValuePtr Interpreter::execute(const Type t, const ValueSeq &params)
 			return ValuePtr(new LinkValue(l_result));
 		}
 	}
+	if (t == IMPULSE_LINK) {
+		OC_ASSERT(params.size() == 1);
+		LinkValuePtr result;
+		result = logical_not( LinkValueCast(params[0]));
+		return ValuePtr(result);
+	}
+	return ValuePtr();
 }
 
 value_size Interpreter::extract_output_size(const Handle &program, const Handle &key)
