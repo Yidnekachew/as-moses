@@ -425,6 +425,9 @@ const combo_tree& metapopulation::best_tree() const
  */
 const Handle& metapopulation::best_atomese() const
 {
+    if(_params.do_boosting) {
+        return _ensemble.get_weighted_atomese();
+    }
     return best_atomese_candidates().begin()->get_handle();
 }
 

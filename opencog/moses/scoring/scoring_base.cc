@@ -75,7 +75,7 @@ void bscore_base::set_complexity_coef(score_t complexity_ratio)
 
 behavioral_score bscore_base::operator()(const Handle &) const
 {
-	OC_ASSERT(false, "Ensemble scoring not implemented for bscorer %s",
+	OC_ASSERT(false, "Handle scoring not implemented for bscorer %s",
 	          typeid(*this).name());
 	return behavioral_score();
 }
@@ -85,6 +85,14 @@ bscore_base::operator()(const scored_combo_tree_set &ensemble) const
 {
 	OC_ASSERT(false, "Ensemble scoring not implemented for bscorer %s",
 	          typeid(*this).name());
+	return behavioral_score();
+}
+
+behavioral_score
+bscore_base::operator()(const scored_atomese_set &ensemble) const
+{
+	OC_ASSERT(false, "Ensemble scoring not implemented for bscorer %s",
+			  typeid(*this).name());
 	return behavioral_score();
 }
 
@@ -140,6 +148,14 @@ bscore_base::get_error(const combo_tree &tr) const
 	// return get_error(operator()(tr));
 	OC_ASSERT(false, "tree error not implemented for bscorer %s",
 	          typeid(*this).name());
+	return 1.0;
+}
+
+score_t
+bscore_base::get_error(const Handle &handle) const
+{
+	OC_ASSERT(false, "Handle error not implemented for bscorer %s",
+			  typeid(*this).name());
 	return 1.0;
 }
 

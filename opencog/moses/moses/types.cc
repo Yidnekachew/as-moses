@@ -389,4 +389,12 @@ std::string oc_to_string(const moses::scored_combo_tree &sct,
 	return ss.str();
 }
 
+std::string oc_to_string(const moses::scored_atomese &sa,
+						 const std::string &indent)
+{
+	std::stringstream ss;
+	moses::operator<<(ss, sa);
+	return ss.str();
+}
+
 } // ~namespace opencog
