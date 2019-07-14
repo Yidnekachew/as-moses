@@ -7,7 +7,7 @@ ADD_LIBRARY(atomese SHARED
 		interpreter/logical_interpreter
         interpreter/condlink_interpreter
 		atom_types
-		)
+	interpreter/impulselink_interpreter.cc interpreter/impulselink_interpreter.h)
 
 TARGET_LINK_LIBRARIES (atomese
 	${ATOMSPACE_LIBRARIES}

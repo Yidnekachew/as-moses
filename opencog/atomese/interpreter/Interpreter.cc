@@ -28,6 +28,7 @@
 #include <opencog/atoms/base/Link.h>
 #include <opencog/atomese/interpreter/logical_interpreter.h>
 #include <opencog/atomese/interpreter/condlink_interpreter.h>
+#include <opencog/asmoses/atomese/atom_types/atom_types.h>
 
 #include "Interpreter.h"
 
@@ -192,6 +193,14 @@ ValuePtr Interpreter::execute(const Type t, const ValueSeq &params)
 		}
 	}
 	if (t == IMPULSE_LINK) {
+		OC_ASSERT(params.size() == 1)
+
+		TruthValuePtr tvp(EvaluationLink::do_evaluate(scratch, _outgoing.at(0)));
+
+		if (tvp->get_mean() > 0.5)
+			return createNumberNode(1);
+		else
+			return createNumberNode(0);
 		OC_ASSERT(params.size() == 1);
 		LinkValuePtr result;
 		result = logical_not( LinkValueCast(params[0]));

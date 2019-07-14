@@ -32,6 +32,7 @@
 #include <opencog/atomese/interpreter/Interpreter.h>
 #include <opencog/utils/value_key.h>
 #include <opencog/atomese/interpreter/logical_interpreter.h>
+#include <opencog/asmoses/atomese/atom_types/atom_types.h>
 #include "ensemble.h"
 
 namespace opencog
@@ -585,7 +586,7 @@ const Handle& ensemble::get_adaboost_atomese() const
 
 		weight = createNode(NUMBER_NODE, std::to_string(sct.get_weight()));
 
-		impulse = calc_impulse(sct.get_handle());
+		impulse = createLink(IMPULSE_LINK, sct.get_handle());
 
 		// minus is (handle - 0.5) so that minus is equal to +0.5 if
 		// handle is true, else it is equal to -0.5
@@ -715,7 +716,7 @@ const Handle& ensemble::get_expert_atomese() const
 
 		weight = createNode(NUMBER_NODE, std::to_string(sct.get_weight()));
 
-		impulse = calc_impulse(sct.get_handle());
+		impulse = createLink(IMPULSE_LINK, sct.get_handle());
 
 		// times is (weight * tree)
 		times = createLink(TIMES_LINK, weight, impulse);
@@ -739,19 +740,5 @@ score_t ensemble::flat_score() const
 	return boost::accumulate(bs, 0.0);
 }
 
-// ? how do we handle for contin problems
-Handle ensemble::calc_impulse(Handle h) const
-{
-	atomese::Interpreter interpreter(value_key);
-	ValuePtr _result = interpreter(h);
-
-	if(atomese::logical_compare(LinkValueCast(createLink(TRUE_LINK)), LinkValueCast(_result)))
-		return createNode(NUMBER_NODE, "1");
-	else
-		return createNode(NUMBER_NODE, "0");
-}
-
-
-}
-}; // namespace opencog::moses
+}}; // namespace opencog::moses
 
